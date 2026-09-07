@@ -6,6 +6,8 @@ import { DatabaseManager } from '../utils/database';
 import { decideRequestStatus } from '../utils/decide';
 import { TIME_SLOTS } from '../utils/constants';
 import { loadSlotsFromSupabase, loadCustomerDataFromSupabase, submitToSupabase, resubmitToSupabase } from '../utils/supabaseData';
+import { StatusSummaryCard } from './StatusSummaryCard';
+import { PreparationMemoCard } from './PreparationMemoCard';
 
 interface CustomerPageProps {
   db: DatabaseManager;
@@ -314,6 +316,15 @@ export const CustomerPage: React.FC<CustomerPageProps> = ({ db, mode, userId }) 
       {stage === 'view' && customerRequests.length > 0 && (
         <div>
           <h3>내 신청 현황</h3>
+          {/* S6-02 상태 바로보기 요약 카드 및 S6-01 확정 알림 */}
+          <StatusSummaryCard
+            request={customerRequests[customerRequests.length - 1].request}
+            candidates={customerRequests[customerRequests.length - 1].candidates}
+            slots={slots}
+          />
+          {/* S6-08 상담 준비 메모/체크리스트 카드 */}
+          <PreparationMemoCard customerId={customerId} />
+
           {customerRequests.map((item, idx) => (
             <div key={item.request.id} style={{ marginBottom: '20px', padding: '16px', background: 'white', borderRadius: '4px', border: '1px solid #ddd' }}>
               <h4>신청 #{item.request.version} (접수일: {new Date(item.request.createdAt).toLocaleString()})</h4>

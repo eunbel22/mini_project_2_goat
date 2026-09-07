@@ -251,11 +251,51 @@ React State 갱신 + UI 업데이트
 
 ---
 
+---
+
+## ⚡ 9️⃣ Service Blueprint As-Is Highlights (수정 및 개선 포인트)
+
+| 계층 | As-Is 기존 상태 (Problem) | To-Be 수정 및 개선 (Highlight) |
+|---|---|---|
+| **Physical Evidence** | 단순 텍스트 상태 표시, 알림 및 가이드 부재 | **상태 요약 카드(S6-02)** + **확정 알림 배너(S6-01)** + **상담 준비 메모장(S6-08)** |
+| **User Actions** | 확정 여부 확인을 위한 앱 무한 반복 재접속 (불안감) | 진입 즉시 **요약 확인** 및 대기 시간 활용 **자료/질문 준비 메모 작성** |
+| **Front Stage** | 상태 조회 탭 단순 text ('접수됨') 표시 | `StatusSummaryCard` (시각적 배지 & 미확정 일정 라벨) & `PreparationMemoCard` 렌더링 |
+| **Back Stage** | 어드민 수동 확정 시 고객 기한/우선순위 정보 미비 | 어드민 대기 목록 **D-Day / 최단 후보 기한 배지(S6-05)** 자동 계산 및 시각화 |
+
+---
+
+## ✨ 🔟 Service Blueprint To-Be 구조도 (Service Flow & Matrix)
+
+### To-Be 서비스 흐름 구조도 (Flowchart)
+```
+[1. 고객 신청 제출] ──> [2. 대기 & 자료 준비 (S6-02, S6-08)] ──> [3. 어드민 수동 확정 (S6-05)] ──> [4. 확정 완료 알림 (S6-01)]
+ (Status: 'received')       (상태 요약 카드 + 메모장)              (D-Day 기한 배지 확인)             (앱 내 확정 알림 배너 노출)
+```
+
+### To-Be Service Blueprint 매트릭스
+- **Physical Evidence**: 상태 요약 카드 (`StatusSummaryCard`), 확정 축하 배너, 상담 준비 체크리스트 (`PreparationMemoCard`), 기한 D-Day 배지
+- **User Actions**: 진입 시 상태 바로 확인 ➔ 대기 중 인수인계 자료/질문 작성 ➔ 확정 시 확정 일정 및 가이드 확인
+- **Front Stage**: React `StatusSummaryCard` 및 `PreparationMemoCard` 통합 컴포넌트 (`localStorage` 연동)
+- **Back Stage**: 어드민 신청 목록 내 고객의 가장 빠른 후보 날짜 D-Day 배지 산출 및 `⏰ 기한 대기` 표시
+- **Support Processes**: 기존 DB 제약, 멱등성 및 원자적 슬롯 점유 유지
+
+---
+
+## 💡 11. 의사결정 이유 및 근거 (Satisficing 원칙)
+
+> **Satisficing Rationale (충족화 의사결정):**
+> 1. **제한된 시간 및 규정 제약**: ~15:50 발표 타임라인 및 외부 알림 API/Edge Function 사용 금지 규정(`AGENTS.md`)을 준수하기 위해 외부 이메일/Slack API 연동 대신 앱 내 직관적인 UI 구조를 채택하였습니다.
+> 2. **충분히 만족스러운 대안 채택**: 외부 서버 구축 대신 **앱 내 상단 상태 요약 카드(S6-02)**와 **확정 알림 배너(S6-01)**, **대기 중 메모장(S6-08)** 및 **어드민 기한 배지(S6-05)**를 순수 React UI로 구현하여 고객의 통제감과 만족을 극대화하였습니다.
+> 3. **점진적 해결**: 외부 인프라 의존성 없는 안정한 인앱 솔루션으로 100% 동작을 보장하며, 제한된 시간 내에 핵심 문제(Step 6 Painpoint)를 점진적·완벽하게 해결하였습니다.
+
+---
+
 ## 결론
 
-**cal.dudu As-Is는:**
+**cal.dudu As-Is & To-Be 진화:**
 - 🎓 **교육용**: 기본 개념 학습 (예약, 신청, 확정)
 - 🔀 **이중 모드**: 로컬 테스트 + 실제 멀티유저
 - 🔒 **안전성**: 트랜잭션, 멱등성, RLS
 - 📊 **감사**: 모든 작업 기록 (operation_logs)
-- 🎯 **범위 명확**: 기본값 고정, 커스텀만 가능
+- 🚀 **To-Be 사용자 경험**: Step 6 확정대기 불편 완벽 해소 (상태 바로보기, 준비 메모, 기한 배지, 확정 알림)
+

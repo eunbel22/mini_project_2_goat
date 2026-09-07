@@ -1,0 +1,229 @@
+{
+  "basis": "50_UJM_Canon.md P2/P3",
+  "type": "교육용 가상 상황과 반응 가설. 실제 관찰 아님.",
+  "situation": {
+    "goal": "서점을 인수한다. 기존 점주가 9/8에 떠나기 전에 넘겨받을 자료와 업무를 정해야 한다.",
+    "context": "재고는 엑셀, 주문·모임 신청은 전화와 메신저로 관리한다. 무엇을 넘겨받고 어떻게 일을 줄일지 AX 상담이 필요하다.",
+    "incident": "9/3 오후·9/4 오전을 신청했지만 9/1 두 후보가 마감된다. 재선택 가능한 9/7 오후는 인수인계 종료 전날이다.",
+    "constraints": "서점 인수와 9/8 인수인계 종료는 교육용 가상 상황이다. 원문 Persona의 사실이 아니다. 9/7 상담 뒤 점주에게 필요한 자료를 요청할 시간은 짧다. 정상 재선택·재제출은 성공하며 관리자 확정은 기다린다."
+  },
+  "as_is_basis": {
+    "baseline": "공통 예약 앱의 정상 운영. PRD.md 13~24행에 정의된 기본 기능",
+    "facts": [
+      "고객은 열린 슬롯 1~3개를 우선순위로 제출한다.",
+      "관리자가 후보 중 하나를 수동 확정한다. 신청 접수만으로 슬롯을 확보하지 않는다.",
+      "후보가 모두 마감되면 재선택 필요 표시와 재선택 버튼이 정상 제공된다.",
+      "고객은 새 후보를 제출할 수 있다. 제출 후 관리자 확정을 다시 기다린다.",
+      "자동 확정, 대기 수 제한, 외부 알림은 기본 기능에 없다.",
+      "고객은 직접 앱에서 상태를 확인한다. 시스템 오류, 고장, 저장 실패, 버튼 실종, 상태 불일치를 가정하지 않는다."
+    ],
+    "evidence": "cal_dudu_starter_260907/PRD.md:13-24"
+  },
+  "steps": [
+    {
+      "id": 1,
+      "time": "8/31 19:00",
+      "stage": "상담신청",
+      "action": "앱에서 AX 컨설턴트와의 서점 인수 상담을 9/3 오후, 9/4 오전으로 신청한다",
+      "touchpoint": "앱",
+      "goal": "두 시간대를 순서대로 제출해 관리자 검토를 받는다",
+      "expectation": "신청이 '접수됨' 상태로 저장되고 9/8 기한이 안내된다",
+      "thought": "점주가 9/8에 떠나기 전에 자료를 받아야 한다",
+      "feeling": "긍정적",
+      "emotion_score": 4,
+      "pain": "없음",
+      "reason": "신청 기능 정상, 사용자 입력 명확. 9/8 마감 기한 인식",
+      "cause_type": "Persona+상황",
+      "cause_short": "Persona: 살롱 운영 꿈 / 상황: 점주 9/8 떠남",
+      "persona_quote": "취향이 비슷한 사람들과 지적인 대화를 나누는 작은 살롱을 운영하는 것도 꿈꾼다",
+      "situation_basis": "8/31 저녁 신청, 9/3·9/4 두 시간대 제출, 서점 인수 준비",
+      "inference_limit": "관리자 확정 시점 불명확, 9/8 이전 완료 보장 없음",
+      "emoji": "🙂"
+    },
+    {
+      "id": 2,
+      "time": "9/1 아침~낮",
+      "stage": "상태확인",
+      "action": "앱을 열어 9/3 오후, 9/4 오전 신청 상태를 확인한다",
+      "touchpoint": "앱",
+      "goal": "신청한 두 시간의 현재 상태를 파악한다",
+      "expectation": "앱에서 9/3·9/4 신청 상태를 명확히 표시한다",
+      "thought": "점주가 계실 때 자료를 받아야 하는데 아직 확정이 안 났나",
+      "feeling": "초조",
+      "emotion_score": 2,
+      "pain": "관리자가 언제 답변할지 모르므로 직접 앱을 확인해야 한다",
+      "reason": "상황: 9/8 기한 임박, 신청 후 응답 시간 불정",
+      "cause_type": "상황",
+      "cause_short": "상황: 점주 재직 기간 단축, 확정 시점 미정",
+      "persona_quote": "",
+      "situation_basis": "9/1 다른 고객 신청 확정으로 후보 감소",
+      "inference_limit": "초조는 기한 제약(9/8)에서 발생, 성격상 급함으로 단정 불가",
+      "emoji": "😟"
+    },
+    {
+      "id": 3,
+      "time": "9/1 오후",
+      "stage": "마감확인",
+      "action": "앱에서 9/3 오후와 9/4 오전이 다른 고객에게 확정됐다는 안내를 본다",
+      "touchpoint": "앱",
+      "goal": "마감된 후보를 확인하고 새 시간을 선택한다",
+      "expectation": "재선택 버튼이 표시되고 새 후보 입력이 가능하다",
+      "thought": "두 시간이 다 떨어졌다. 빨리 컨설턴트와 만날 다른 시간을 찾아야겠다",
+      "feeling": "긴장",
+      "emotion_score": 2,
+      "pain": "없음",
+      "reason": "상황: 다른 고객 신청이 선택됨. 재선택 경로 명확",
+      "cause_type": "상황",
+      "cause_short": "상황: 9/1 오후 두 후보 확정, 재선택 안내 표시",
+      "persona_quote": "",
+      "situation_basis": "공통 예약 시스템의 선착순 원리",
+      "inference_limit": "9/8 마감이 재선택 동기",
+      "emoji": "😟"
+    },
+    {
+      "id": 4,
+      "time": "9/1 오후~저녁",
+      "stage": "일정재확인",
+      "action": "개인 달력을 열어 9/8 전에 참석할 수 있는 새로운 시간을 찾는다",
+      "touchpoint": "개인 달력",
+      "goal": "9/8 마감 전에 참석 가능한 시간을 결정한다",
+      "expectation": "9/7 오후가 비어있음을 확인하고 새 신청을 준비한다",
+      "thought": "9/7 오후가 비어있다. 점주가 그때까지 계실 텐데 이걸로 다시 신청해야겠다",
+      "feeling": "긍정적",
+      "emotion_score": 4,
+      "pain": "없음",
+      "reason": "상황: 사용자가 9/7 오후 확보, 9/8 마감 전 해결 경로 확보",
+      "cause_type": "상황",
+      "cause_short": "상황: 9/7 오후 참석 가능 확인",
+      "persona_quote": "",
+      "situation_basis": "9/1 마감 확인 후 개인 일정 재검토, 9/7 오후 발견",
+      "inference_limit": "9/7 확보 후 재신청 대기 필요",
+      "emoji": "🙂"
+    },
+    {
+      "id": 5,
+      "time": "9/1 저녁",
+      "stage": "재선택제출",
+      "action": "앱의 재선택하기 버튼을 클릭해 9/7 오후를 새 후보로 제출한다",
+      "touchpoint": "앱",
+      "goal": "새로운 시간 신청을 완료해 관리자 재검토를 요청한다",
+      "expectation": "새 후보가 '접수됨'으로 상태 변경된다",
+      "thought": "9/7 오후로 다시 신청했다. 이번엔 빨리 확정되기를 바란다",
+      "feeling": "중립",
+      "emotion_score": 3,
+      "pain": "없음",
+      "reason": "상황: 재신청 기능 정상, 관리자 확정 대기 필요",
+      "cause_type": "상황",
+      "cause_short": "상황: 재신청 완료, 관리자 수동 확정 대기",
+      "persona_quote": "",
+      "situation_basis": "9/1 저녁 재신청. 9/8 마감까지 7일 남음",
+      "inference_limit": "객관적 시간 제약(9/8 기한)이 동기",
+      "emoji": "😐"
+    },
+    {
+      "id": 6,
+      "time": "9/1 저녁~이후",
+      "stage": "확정대기",
+      "action": "앱을 여러 번 열어 9/7 오후 신청이 확정됐는지 확인한다",
+      "touchpoint": "앱",
+      "goal": "9/8 마감 전에 컨설턴트와 만날 일정을 확정받는다",
+      "expectation": "9/8 기한 전 9/7 오후가 '확정됨'으로 변경된다",
+      "thought": "점주가 9/8에 떠나기 전에 꼭 자료를 받아야 한다",
+      "feeling": "초조",
+      "emotion_score": 2,
+      "pain": "관리자 확정 시점이 불명하고 9/8까지 불확실한 상태가 지속된다",
+      "reason": "상황: 관리자 수동 확정 시점 미정, 9/8 기한 제약 지속",
+      "cause_type": "상황",
+      "cause_short": "상황: 9/8 마감 임박, 점주 재직 시간 제한",
+      "persona_quote": "",
+      "situation_basis": "9/1 저녁 재신청부터 9/8 마감까지 7일, 확정 시점 불명",
+      "inference_limit": "시간 제약이 행동 동기",
+      "emoji": "😟"
+    }
+  ],
+  "emotion_scale": {
+    "1": "매우 부정적",
+    "2": "부정적",
+    "3": "중립",
+    "4": "긍정적",
+    "5": "매우 긍정적"
+  },
+  "model_run": {
+    "P2": {
+      "requested_model": "haiku",
+      "models": [
+        "claude-haiku-4-5-20251001"
+      ],
+      "session_id": "28786e57-18ab-47df-8f22-bcf7e7d12019",
+      "duration_seconds": 20.11,
+      "prompt_sha256": "2d7a90ae8cd058badca47c82d4e7ab1e08a2c3a813d46ed129e236fef805eb47",
+      "output_sha256": "1632dd12805ed76b4f2b59292d83a5d7ced3f6d72b2dccdf23a8e3beda944da9",
+      "is_error": false
+    },
+    "P3": {
+      "requested_model": "haiku",
+      "models": [
+        "claude-haiku-4-5-20251001"
+      ],
+      "session_id": "9c7dc0a1-d379-467c-a643-f65a8910d7c3",
+      "duration_seconds": 49.43,
+      "prompt_sha256": "b7fbea72f589f4f392380138c45cd6ff3a70521b9c622fe5229470ec1c339840",
+      "output_sha256": "5a11091d311bac33b729270be2ebc764b356f6f463720298a770fc661a3fec9c",
+      "is_error": false
+    },
+    "P3-repair": {
+      "models": [
+        "claude-haiku-4-5-20251001"
+      ],
+      "session_id": "8d6991c0-d29c-480a-8df9-e68f7c4bc411",
+      "duration_seconds": 45.31,
+      "prompt_sha256": "1cddf6669d0459685f4d1609f5522dd6db4836fd102620b3b65181e82b1a7b40",
+      "output_sha256": "83ac18c4482255a7cd9d87f486d359dfcf3ecfdf3e098c3847fe093d2418539a"
+    },
+    "P4-clarify": {
+      "models": [
+        "claude-haiku-4-5-20251001"
+      ],
+      "session_id": "2c648e24-e2f1-46d5-b9ba-bf8267093276",
+      "duration_seconds": 39.92,
+      "prompt_sha256": "02b2cb74b6774bb76b3a50633862e31ef49c908e8421d17d421f395b9971a7e2"
+    },
+    "C2-readable": {
+      "models": [
+        "claude-haiku-4-5-20251001"
+      ],
+      "session_id": "5d8cfc15-f4ee-4459-9468-1f3b02edf317",
+      "duration_seconds": 40.9,
+      "prompt_sha256": "7680a27b1683e66d4acd4efc3bc253d5c88efb68e4fa11c7b19909912b5c93bc"
+    },
+    "C3-bookstore": {
+      "models": [
+        "claude-haiku-4-5-20251001"
+      ],
+      "session_id": "fd43c85c-71b5-4ede-a1fa-71faf6242342",
+      "duration_seconds": 30.71,
+      "prompt_sha256": "f54431be09d2209ffc5cf6606efcfae1b10c73b4a7a64cd3afaa638b5eec2aa1"
+    },
+    "C4-roles": {
+      "models": [
+        "claude-haiku-4-5-20251001"
+      ],
+      "session_id": "24fc7e8f-123e-416e-8351-57c14f65297f",
+      "duration_seconds": 26.03,
+      "prompt_sha256": "c6ea7a58571a7ebf3694b90164f3be1a18ede67de4291c41e4b2003ef29d0728"
+    }
+  },
+  "date_adaptation": {
+    "reason": "사용자 요청: 지난주에 겪은 예약 과정으로 설정",
+    "mapping": {
+      "9/7": "8/31",
+      "9/8": "9/1",
+      "9/10": "9/3",
+      "9/11": "9/4",
+      "9/14": "9/7",
+      "9/15": "9/8"
+    },
+    "original_model_responses_preserved": true,
+    "type": "과거 시점 가상 사례, 실제 관찰 아님"
+  }
+}

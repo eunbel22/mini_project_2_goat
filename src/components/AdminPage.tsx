@@ -149,6 +149,21 @@ export const AdminPage: React.FC<AdminPageProps> = ({ db, mode, userId }) => {
                           ? '재선택필요'
                           : '접수됨'}
                     </span>
+                    {/* S6-05 · 관리자 기한 배지 */}
+                    {item.request.status === 'received' && item.candidates.length > 0 && (
+                      <span style={{
+                        marginLeft: '8px',
+                        padding: '2px 6px',
+                        fontSize: '11px',
+                        borderRadius: '4px',
+                        backgroundColor: '#fff3cd',
+                        color: '#856404',
+                        border: '1px solid #ffeeba',
+                        fontWeight: 'bold',
+                      }}>
+                        ⏰ 기한 대기 (최단: {slots[item.candidates[0]?.slotId]?.date || '미정'})
+                      </span>
+                    )}
                   </div>
                 </li>
               ))}
