@@ -9,9 +9,11 @@ import { TIME_SLOTS } from '../utils/constants';
 interface CustomerPageProps {
   db: DatabaseManager;
   mode: 'local' | 'supabase';
+  userId?: string;
 }
 
 export const CustomerPage: React.FC<CustomerPageProps> = ({ db }) => {
+  // mode와 userId는 향후 Supabase 모드에서 사용
   const [customerId, setCustomerId] = useState<string>('C01');
   const [stage, setStage] = useState<'select' | 'confirm' | 'view' | 'reselect'>('select');
   const [selectedSlots, setSelectedSlots] = useState<string[]>([]);
