@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>cal.dudu Service Blueprint (As-Is)</title>
+  <title>cal.dudu Service Blueprint (As-Is) - 상세 분석</title>
   <style>
     * {
       margin: 0;
@@ -13,7 +13,7 @@
 
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-      line-height: 1.4;
+      line-height: 1.6;
       color: #333;
       background: #f8f9fa;
       padding: 30px 20px;
@@ -27,291 +27,266 @@
     header {
       text-align: center;
       margin-bottom: 40px;
-      background: white;
-      padding: 30px;
-      border-radius: 8px;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      padding: 50px 30px;
+      border-radius: 12px;
+      box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+      color: white;
     }
 
     h1 {
-      font-size: 2.2em;
+      font-size: 2.5em;
       margin-bottom: 10px;
-      color: #1a1a1a;
+      font-weight: 700;
     }
 
     .subtitle {
-      font-size: 1em;
-      color: #666;
+      font-size: 1.1em;
+      opacity: 0.95;
+      margin-bottom: 15px;
     }
 
-    .blueprint-container {
+    .research-info {
+      font-size: 0.9em;
+      opacity: 0.9;
+      border-top: 1px solid rgba(255,255,255,0.3);
+      padding-top: 15px;
+      margin-top: 15px;
+    }
+
+    section {
       background: white;
       padding: 40px;
+      margin-bottom: 25px;
       border-radius: 8px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-      margin-bottom: 40px;
-      overflow-x: auto;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
     }
 
-    .blueprint {
-      display: flex;
-      flex-direction: column;
-      gap: 0;
-      min-width: 1000px;
-    }
-
-    /* Row styling */
-    .blueprint-row {
-      display: flex;
-      border-bottom: 1px solid #e0e0e0;
-      min-height: 80px;
-    }
-
-    .blueprint-row:last-child {
-      border-bottom: none;
-    }
-
-    .blueprint-row.evidence {
-      background: #e8f5e9;
-      font-weight: 600;
-      color: #2e7d32;
-    }
-
-    .blueprint-row.actions {
-      background: #fff9e6;
-    }
-
-    .blueprint-row.front {
-      background: #fff3e0;
-    }
-
-    .blueprint-row.line {
-      background: #f3e5f5;
-      border-top: 3px dashed #9c27b0;
-      border-bottom: 3px dashed #9c27b0;
-      min-height: 2px;
-    }
-
-    .blueprint-row.back {
-      background: #e3f2fd;
-    }
-
-    .blueprint-row.support {
-      background: #fce4ec;
-      border-top: 2px solid #c2185b;
-    }
-
-    /* Cell styling */
-    .blueprint-cell {
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      padding: 15px;
-      border-right: 1px solid #e0e0e0;
-      text-align: center;
-      font-size: 0.9em;
-      flex: 1;
-    }
-
-    .blueprint-cell:last-child {
-      border-right: none;
-    }
-
-    .blueprint-row.line .blueprint-cell {
-      border-right: 1px dashed #c2185b;
-    }
-
-    .blueprint-row.line .blueprint-cell:last-child {
-      border-right: none;
-    }
-
-    .label {
-      font-weight: 600;
-      font-size: 0.75em;
-      padding: 4px 8px;
-      background: rgba(0,0,0,0.1);
-      border-radius: 3px;
-      margin-bottom: 5px;
-    }
-
-    .element {
-      background: white;
-      border: 2px solid;
-      border-radius: 6px;
-      padding: 8px 12px;
-      font-size: 0.85em;
-      font-weight: 500;
-      margin: 3px;
-    }
-
-    .element.action {
-      border-color: #fbc02d;
-      background: #fffde7;
-      color: #f57f17;
-    }
-
-    .element.touchpoint {
-      border-color: #ff6f00;
-      background: #ffe0b2;
-      color: #e65100;
-    }
-
-    .element.process {
-      border-color: #1976d2;
-      background: #bbdefb;
-      color: #0d47a1;
-    }
-
-    .element.system {
-      border-color: #7b1fa2;
-      background: #e1bee7;
-      color: #4a148c;
-    }
-
-    .element.support {
-      border-color: #c2185b;
-      background: #f8bbd0;
-      color: #880e4f;
-    }
-
-    /* Row labels */
-    .row-label {
-      min-width: 120px;
-      font-weight: 700;
-      font-size: 0.75em;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      padding: 10px;
-      border-right: 2px solid #999;
-      background: rgba(0,0,0,0.05);
-    }
-
-    .row-label.evidence {
-      color: #2e7d32;
-    }
-
-    .row-label.actions {
-      color: #f57f17;
-    }
-
-    .row-label.front {
-      color: #e65100;
-    }
-
-    .row-label.line {
-      color: #7b1fa2;
-      font-weight: 900;
-    }
-
-    .row-label.back {
-      color: #0d47a1;
-    }
-
-    .row-label.support {
-      color: #880e4f;
-    }
-
-    .legend {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-      gap: 20px;
-      margin-top: 40px;
-      padding: 20px;
-      background: #fafafa;
-      border-radius: 8px;
-    }
-
-    .legend-item {
-      display: flex;
-      gap: 10px;
-      align-items: center;
-    }
-
-    .legend-color {
-      width: 40px;
-      height: 30px;
-      border-radius: 4px;
-      flex-shrink: 0;
-    }
-
-    .legend-text {
-      font-size: 0.9em;
-    }
-
-    .legend-text strong {
-      display: block;
-      margin-bottom: 3px;
-    }
-
-    .section-info {
-      background: white;
-      padding: 30px;
-      border-radius: 8px;
-      margin-bottom: 30px;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    }
-
-    .section-info h2 {
-      font-size: 1.4em;
-      margin-bottom: 15px;
+    section h2 {
+      font-size: 1.8em;
+      margin-bottom: 25px;
+      padding-bottom: 15px;
+      border-bottom: 3px solid #667eea;
       color: #1a1a1a;
+    }
+
+    section h3 {
+      font-size: 1.2em;
+      margin-top: 25px;
+      margin-bottom: 15px;
+      color: #2c3e50;
+      font-weight: 600;
+    }
+
+    .analysis-box {
+      background: linear-gradient(135deg, #667eea15 0%, #764ba215 100%);
+      border-left: 4px solid #667eea;
+      padding: 25px;
+      margin: 20px 0;
+      border-radius: 6px;
+    }
+
+    .analysis-item {
+      margin: 15px 0;
+      line-height: 1.8;
+    }
+
+    .analysis-item strong {
+      color: #667eea;
+      font-weight: 600;
+    }
+
+    .highlight-red {
+      color: #e74c3c;
+      font-weight: 600;
+    }
+
+    .highlight-blue {
+      color: #3498db;
+      font-weight: 600;
     }
 
     table {
       width: 100%;
       border-collapse: collapse;
-      margin: 15px 0;
+      margin: 20px 0;
+      font-size: 0.95em;
     }
 
     th, td {
       border: 1px solid #ddd;
-      padding: 10px;
+      padding: 15px;
       text-align: left;
     }
 
     th {
-      background: #f5f5f5;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
       font-weight: 600;
     }
 
     tr:nth-child(even) {
-      background: #fafafa;
+      background: #f9f9f9;
+    }
+
+    tr:hover {
+      background: #f0f4ff;
+    }
+
+    .step-card {
+      background: #f8f9fa;
+      border: 2px solid #e0e0e0;
+      border-radius: 8px;
+      padding: 20px;
+      margin: 15px 0;
+    }
+
+    .step-card.critical {
+      border-color: #e74c3c;
+      background: #fdeef0;
+    }
+
+    .step-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 15px;
+    }
+
+    .step-number {
+      display: inline-block;
+      background: #667eea;
+      color: white;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      text-align: center;
+      line-height: 40px;
+      font-weight: bold;
+      font-size: 1.1em;
+    }
+
+    .step-card.critical .step-number {
+      background: #e74c3c;
+    }
+
+    .emotion-score {
+      display: inline-block;
+      padding: 5px 15px;
+      border-radius: 20px;
+      font-weight: 600;
+      font-size: 0.9em;
+    }
+
+    .emotion-score.negative {
+      background: #fadbd8;
+      color: #c0392b;
+    }
+
+    .emotion-score.neutral {
+      background: #fef5e7;
+      color: #d68910;
+    }
+
+    .emotion-score.positive {
+      background: #d5f4e6;
+      color: #27ae60;
+    }
+
+    .flow-diagram {
+      background: #f8f9fa;
+      padding: 30px;
+      border-radius: 8px;
+      margin: 20px 0;
+      font-family: monospace;
+      overflow-x: auto;
+    }
+
+    .pain-point {
+      background: #fadbd8;
+      border-left: 4px solid #e74c3c;
+      padding: 20px;
+      margin: 15px 0;
+      border-radius: 4px;
+    }
+
+    .pain-point strong {
+      color: #c0392b;
+    }
+
+    .improvement {
+      background: #d5f4e6;
+      border-left: 4px solid #27ae60;
+      padding: 20px;
+      margin: 15px 0;
+      border-radius: 4px;
+    }
+
+    .improvement strong {
+      color: #1e8449;
     }
 
     .footer {
       text-align: center;
       color: #666;
-      margin-top: 40px;
-      padding: 20px;
-      border-top: 1px solid #e0e0e0;
+      margin-top: 50px;
+      padding: 30px;
+      border-top: 1px solid #ddd;
+      font-size: 0.9em;
     }
 
-    @media (max-width: 1024px) {
-      .blueprint-container {
+    .research-note {
+      background: #ecf0f1;
+      padding: 20px;
+      border-radius: 6px;
+      margin: 20px 0;
+      font-size: 0.95em;
+      line-height: 1.7;
+    }
+
+    .comparison-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+      margin: 20px 0;
+    }
+
+    .comparison-item {
+      padding: 20px;
+      background: #f9f9f9;
+      border-radius: 6px;
+      border: 1px solid #e0e0e0;
+    }
+
+    .comparison-item h4 {
+      margin-bottom: 10px;
+      color: #667eea;
+      font-size: 1.1em;
+    }
+
+    @media (max-width: 768px) {
+      section {
         padding: 20px;
       }
 
-      .blueprint {
-        min-width: 100%;
+      h1 {
+        font-size: 1.8em;
       }
 
-      .row-label {
-        min-width: 100px;
-        font-size: 0.7em;
+      section h2 {
+        font-size: 1.4em;
       }
 
-      .blueprint-cell {
-        padding: 12px 8px;
-        font-size: 0.8em;
+      .comparison-grid {
+        grid-template-columns: 1fr;
       }
 
-      .element {
-        font-size: 0.75em;
-        padding: 6px 10px;
-        margin: 2px;
+      table {
+        font-size: 0.85em;
+      }
+
+      th, td {
+        padding: 10px;
       }
     }
   </style>
@@ -319,535 +294,352 @@
 <body>
   <div class="container">
     <header>
-      <h1>cal.dudu Service Blueprint (As-Is)</h1>
-      <p class="subtitle">예약 시스템 기본 실습 앱 - 전문적 서비스 블루프린트</p>
+      <h1>🎯 cal.dudu Service Blueprint (As-Is)</h1>
+      <p class="subtitle">손지은 Persona 기반 사용자 경험 분석</p>
+      <div class="research-info">
+        <p>📊 UX 리서치 Playbook 기반 | 가상 상황 분석 | 정상 운영 시스템</p>
+        <p>Persona: 37세 손지은 | 상황: 서점 인수 + 9/15 마감기한 | 목표: AX 상담</p>
+      </div>
     </header>
 
-    <!-- Main Blueprint Diagram -->
-    <div class="blueprint-container">
-      <div class="blueprint">
+    <!-- 1순위 Painpoint 선택 분석 -->
+    <section>
+      <h2>🔴 1순위 Painpoint 선택: Step 6 "확정대기"</h2>
 
-        <!-- 1. Physical Evidence -->
-        <div class="blueprint-row evidence">
-          <div class="row-label evidence">Physical<br>Evidence</div>
-          <div class="blueprint-cell">
-            <div class="label">웹사이트</div>
-            <div class="element touchpoint">로그인 페이지</div>
-            <div class="element touchpoint">슬롯 테이블</div>
-          </div>
-          <div class="blueprint-cell">
-            <div class="label">인터페이스</div>
-            <div class="element touchpoint">신청 폼</div>
-            <div class="element touchpoint">상태 표시</div>
-          </div>
-          <div class="blueprint-cell">
-            <div class="label">확인 UI</div>
-            <div class="element touchpoint">신청 결과</div>
-            <div class="element touchpoint">재선택 알림</div>
-          </div>
-          <div class="blueprint-cell">
-            <div class="label">관리 화면</div>
-            <div class="element touchpoint">어드민 패널</div>
-            <div class="element touchpoint">확인 버튼</div>
-          </div>
-          <div class="blueprint-cell">
-            <div class="label">문서</div>
-            <div class="element touchpoint">블루프린트</div>
-            <div class="element touchpoint">가이드</div>
-          </div>
+      <div class="analysis-box">
+        <h3>왜 Step 6이 가장 부정적인 경험인가?</h3>
+
+        <div class="analysis-item">
+          <strong>선택 근거</strong>
+          <p>
+            🎯 <span class="highlight-blue">손지은의 Persona 특징:</span><br>
+            • "자신의 취향과 속도를 지키는 삶을 선호" → 통제 가능한 상황 원함<br>
+            • "혼자 조용히 쉬는 시간 중시" → 불필요한 반복 확인은 스트레스<br>
+            • "독립 출판 + 살롱 운영" → 9/15 마감은 실제 사업 제약
+          </p>
         </div>
 
-        <!-- 2. User Actions -->
-        <div class="blueprint-row actions">
-          <div class="row-label actions">User<br>Actions</div>
-          <div class="blueprint-cell">
-            <div class="label">로그인</div>
-            <div class="element action">역할 선택</div>
-            <div class="element action">(Local)</div>
-          </div>
-          <div class="blueprint-cell">
-            <div class="label">인증</div>
-            <div class="element action">이메일/비번</div>
-            <div class="element action">가입 (Supabase)</div>
-          </div>
-          <div class="blueprint-cell">
-            <div class="label">신청</div>
-            <div class="element action">슬롯 1-3개</div>
-            <div class="element action">선택 제출</div>
-          </div>
-          <div class="blueprint-cell">
-            <div class="label">조회</div>
-            <div class="element action">신청 상태</div>
-            <div class="element action">확인 대기</div>
-          </div>
-          <div class="blueprint-cell">
-            <div class="label">재신청</div>
-            <div class="element action">슬롯 재선택</div>
-            <div class="element action">새로 제출</div>
-          </div>
+        <div class="analysis-item">
+          <strong>처한 상황</strong>
+          <p>
+            ⏰ <span class="highlight-red">외부 기한 압박:</span><br>
+            • 서점 점주가 9/15에 퇴사 (통제 불가)<br>
+            • 9/14 상담 후 점주에게 인계 자료 요청 (24시간 이내)<br>
+            • 상담 확정이 안 되면 9/15 전 자료 수집 불가 (살롱 운영안 정리 실패)
+          </p>
         </div>
 
-        <!-- 3. Front Stage -->
-        <div class="blueprint-row front">
-          <div class="row-label front">Front<br>Stage</div>
-          <div class="blueprint-cell">
-            <div class="label">인증 서비스</div>
-            <div class="element touchpoint">AuthPage<br>컴포넌트</div>
-            <div class="element touchpoint">로그인/가입<br>폼 표시</div>
-          </div>
-          <div class="blueprint-cell">
-            <div class="label">고객 페이지</div>
-            <div class="element touchpoint">SlotTable</div>
-            <div class="element touchpoint">신청 폼</div>
-            <div class="element touchpoint">상태 표</div>
-          </div>
-          <div class="blueprint-cell">
-            <div class="label">어드민 페이지</div>
-            <div class="element touchpoint">후보 목록</div>
-            <div class="element touchpoint">확정 선택</div>
-            <div class="element touchpoint">결과 표시</div>
-          </div>
-          <div class="blueprint-cell">
-            <div class="label">데이터 표현</div>
-            <div class="element touchpoint">요청 상태</div>
-            <div class="element touchpoint">슬롯 가용성</div>
-          </div>
-          <div class="blueprint-cell">
-            <div class="label">라우팅</div>
-            <div class="element touchpoint">/supabase</div>
-            <div class="element touchpoint">/customer</div>
-            <div class="element touchpoint">/admin</div>
-          </div>
-        </div>
-
-        <!-- 4. Interaction Line -->
-        <div class="blueprint-row line">
-          <div class="row-label line">Visible<br>Interaction<br>Line</div>
-          <div class="blueprint-cell"></div>
-          <div class="blueprint-cell"></div>
-          <div class="blueprint-cell"></div>
-          <div class="blueprint-cell"></div>
-          <div class="blueprint-cell"></div>
-        </div>
-
-        <!-- 5. Back Stage -->
-        <div class="blueprint-row back">
-          <div class="row-label back">Back<br>Stage</div>
-          <div class="blueprint-cell">
-            <div class="label">인증 처리</div>
-            <div class="element process">signIn()</div>
-            <div class="element process">signUp()</div>
-            <div class="element process">JWT 검증</div>
-          </div>
-          <div class="blueprint-cell">
-            <div class="label">데이터 로드</div>
-            <div class="element process">loadSlots()</div>
-            <div class="element process">fetchRequests()</div>
-            <div class="element process">JSON 캐싱</div>
-          </div>
-          <div class="blueprint-cell">
-            <div class="label">비즈니스 로직</div>
-            <div class="element process">submitRequest()</div>
-            <div class="element process">confirmRequest()</div>
-            <div class="element process">resubmit()</div>
-          </div>
-          <div class="blueprint-cell">
-            <div class="label">상태 판정</div>
-            <div class="element process">decideStatus()</div>
-            <div class="element process">validateSlot()</div>
-            <div class="element process">checkConflict()</div>
-          </div>
-          <div class="blueprint-cell">
-            <div class="label">DB 작업</div>
-            <div class="element process">RPC 호출</div>
-            <div class="element process">트랜잭션</div>
-            <div class="element process">Lock 관리</div>
-          </div>
-        </div>
-
-        <!-- 6. Support Processes -->
-        <div class="blueprint-row support">
-          <div class="row-label support">Support<br>Processes</div>
-          <div class="blueprint-cell">
-            <div class="label">저장소</div>
-            <div class="element support">localStorage<br>(로컬)</div>
-            <div class="element support">PostgreSQL<br>(Supabase)</div>
-          </div>
-          <div class="blueprint-cell">
-            <div class="label">감사/기록</div>
-            <div class="element support">operation_logs</div>
-            <div class="element support">타임스탬프</div>
-          </div>
-          <div class="blueprint-cell">
-            <div class="label">데이터 무결성</div>
-            <div class="element support">버전 추적</div>
-            <div class="element support">idempotency</div>
-          </div>
-          <div class="blueprint-cell">
-            <div class="label">동시성 제어</div>
-            <div class="element support">DB 제약</div>
-            <div class="element support">RLS 정책</div>
-          </div>
-          <div class="blueprint-cell">
-            <div class="label">모드 전환</div>
-            <div class="element support">로컬/Supabase</div>
-            <div class="element support">동적 라우팅</div>
-          </div>
-        </div>
-
-      </div>
-    </div>
-
-    <!-- Legend -->
-    <div class="section-info">
-      <h2>📋 범례 (Legend)</h2>
-      <div class="legend">
-        <div class="legend-item">
-          <div class="legend-color" style="background: #e8f5e9;"></div>
-          <div class="legend-text">
-            <strong>Physical Evidence</strong>
-            고객이 만나는 물리적/디지털 증거물
-          </div>
-        </div>
-        <div class="legend-item">
-          <div class="legend-color" style="background: #fff9e6;"></div>
-          <div class="legend-text">
-            <strong>User Actions</strong>
-            고객이 취하는 행동과 의사결정
-          </div>
-        </div>
-        <div class="legend-item">
-          <div class="legend-color" style="background: #fff3e0;"></div>
-          <div class="legend-text">
-            <strong>Front Stage</strong>
-            고객이 볼 수 있는 서비스 요소
-          </div>
-        </div>
-        <div class="legend-item">
-          <div class="legend-color" style="background: #f3e5f5;"></div>
-          <div class="legend-text">
-            <strong>Interaction Line</strong>
-            고객 가시성의 경계선
-          </div>
-        </div>
-        <div class="legend-item">
-          <div class="legend-color" style="background: #e3f2fd;"></div>
-          <div class="legend-text">
-            <strong>Back Stage</strong>
-            고객이 볼 수 없는 서비스 처리
-          </div>
-        </div>
-        <div class="legend-item">
-          <div class="legend-color" style="background: #fce4ec;"></div>
-          <div class="legend-text">
-            <strong>Support Processes</strong>
-            백그라운드 지원 시스템
-          </div>
+        <div class="analysis-item">
+          <strong>Step 6의 불편이 다른 2점 단계(Step 2)보다 심한 이유</strong>
+          <p>
+            <strong>Step 2 (emotion_score: 2):</strong> 확인 필요지만, 기한까지 시간 충분<br>
+            ✓ 9/8 아침에 확인 → 9/15까지 7일 남음<br>
+            ✓ 후보 마감 후 재신청 경로 명확<br>
+            <br>
+            <strong>Step 6 (emotion_score: 2):</strong> 반복 확인 + 외부 기한 + 자료 준비 불가 위험<br>
+            ✗ 9/8 저녁부터 9/15까지 주기적 확인 필요<br>
+            ✗ 확정 지연 시 9/14 저녁(상담 전날) 점주에게 자료 요청 못 함<br>
+            ✗ "살롱 운영안 정리" 목표 자체가 위협받음 (Persona 꿈 연결)
+          </p>
         </div>
       </div>
-    </div>
 
-    <!-- Detailed Information -->
-    <div class="section-info">
-      <h2>📊 로컬 모드 (Local Mode) - 교실 데모</h2>
+      <table>
+        <tr>
+          <th>항목</th>
+          <th>Step 2 (상태확인)</th>
+          <th>Step 6 (확정대기) ⭐ 1순위</th>
+        </tr>
+        <tr>
+          <td><strong>Emotion Score</strong></td>
+          <td>2점 (긴장)</td>
+          <td>2점 (긴장)</td>
+        </tr>
+        <tr>
+          <td><strong>기한까지 여유</strong></td>
+          <td>7일 (9/8~9/15)</td>
+          <td>0일 (확정되면 9/14, 못 되면 실패)</td>
+        </tr>
+        <tr>
+          <td><strong>대체 경로</strong></td>
+          <td>있음 (9/14 오후 재신청)</td>
+          <td>없음 (9/15가 마지막)</td>
+        </tr>
+        <tr>
+          <td><strong>Persona 꿈 영향</strong></td>
+          <td>간접적</td>
+          <td>직접적 (살롱 운영안 정리 불가)</td>
+        </tr>
+        <tr>
+          <td><strong>수고 비용</strong></td>
+          <td>앱 1회 확인</td>
+          <td>반복 확인 + 불안감 + 자료 준비 위험</td>
+        </tr>
+      </table>
+    </section>
+
+    <!-- Step 6 상세 분석 -->
+    <section>
+      <h2>📍 Step 6: 확정대기 - 상세 분석</h2>
+
+      <div class="step-card critical">
+        <div class="step-header">
+          <div>
+            <span class="step-number">6</span>
+            <strong style="margin-left: 15px;">확정대기 (9/8 저녁 ~ 이후)</strong>
+          </div>
+          <span class="emotion-score negative">😰 긴장 (2점)</span>
+        </div>
+
+        <h4>현재 시스템 (As-Is)</h4>
+        <table style="margin: 15px 0;">
+          <tr>
+            <td><strong>행동</strong></td>
+            <td>앱을 주기적으로 열어 9/14 오후 신청 상태(접수됨/확정됨) 확인</td>
+          </tr>
+          <tr>
+            <td><strong>기대</strong></td>
+            <td>9/15 기한 전 9/14 오후 상태가 '확정됨'으로 변경, 상담 예약 시간 고정</td>
+          </tr>
+          <tr>
+            <td><strong>실제</strong></td>
+            <td>관리자 확정 시점이 정해져 있지 않음 → 반복 확인 필요 + 불확실성 지속</td>
+          </tr>
+          <tr>
+            <td><strong>불편</strong></td>
+            <td>관리자 확정 시점 불정으로 반복 앱 확인 필요 + 9/15 마감까지 불확실성 지속</td>
+          </tr>
+        </table>
+
+        <div class="pain-point">
+          <strong>🔴 핵심 Painpoint</strong>
+          <p>
+            "9/14 상담 확정이 절대 필요한데, 언제 확정될지 모르니까 <br>
+            9/8 저녁부터 9/15까지 계속 앱을 확인해야 한다.<br>
+            <br>
+            그런데 만약 확정이 9/14 오후 2시라면?<br>
+            상담이 9/14 오후인데, 그 전에 점주님한테 인계할 자료를 정리할 수가 없다.<br>
+            그럼 살롱 운영안을 정리하는 상담의 목적 자체가 실패한다."
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- User Journey Timeline -->
+    <section>
+      <h2>📅 사용자 여정 타임라인</h2>
+
+      <div class="flow-diagram">
+9/7 19:00       9/8 10:00        9/8 14:00        9/8 17:00        9/8 20:00        9/14           9/15 00:00
+  [신청]          [확인]           [마감확인]        [일정재확인]       [재신청]         [?]            [마감]
+   ✓              😰              😐              😊              😐             😰              ❌
+
+ <--- Step 1 ---> <--- Step 2 ---> <--- Step 3 ---> <--- Step 4 ---> <--- Step 5 ---> <--- Step 6 ---> |
+
+ Step 2와 Step 6 모두 emotion_score = 2 (긴장)
+ 하지만 Step 6은:
+ • 기한 압박 (9/15 = 마지막 날)
+ • 대체 경로 없음 (9/14만 가능)
+ • Persona 목표 직결 (살롱 운영안 정리)
+ • 자료 준비 시간 부족 (상담 후 24시간 내 점주에게 요청)
+      </div>
+
+      <h3>🔴 Step 6이 "최악의 순간"인 이유</h3>
+      <ul style="margin: 15px 20px; line-height: 2;">
+        <li><strong>시간 역전:</strong> 9/8 재신청 → 9/14 상담 → 9/15 점주 퇴사</li>
+        <li><strong>한 번의 기회:</strong> 9/14 오후가 유일한 상담 시간 (9/15는 사실상 불가)</li>
+        <li><strong>자료 준비 시간 0:</strong> 상담 후 점주 인계 자료 요청 불가 (점주가 그날 밤 ~ 다음날 아침 퇴사)</li>
+        <li><strong>Persona 목표 위협:</strong> "살롱 운영안 정리" 목표 = 이 상담에만 의존</li>
+        <li><strong>불가역적 결과:</strong> 9/15 마지막 날에 확정되면 준비할 시간이 없음</li>
+      </ul>
+    </section>
+
+    <!-- Persona와 상황의 교집합 -->
+    <section>
+      <h2>👤 Persona × 상황: 왜 Step 6이 불편한가?</h2>
+
+      <div class="comparison-grid">
+        <div class="comparison-item">
+          <h4>🎯 손지은의 Persona</h4>
+          <p>
+            • <strong>자신의 속도와 취향 중시:</strong> 조직 방식 거부<br>
+            • <strong>독립적:</strong> 자신의 결정과 통제 원함<br>
+            • <strong>꿈 지향적:</strong> 살롱 운영 목표 명확<br>
+            • <strong>시간 여유:</strong> 무직이지만 좋은 시간에 불안감 심함
+          </p>
+        </div>
+
+        <div class="comparison-item">
+          <h4>⏰ 처한 상황</h4>
+          <p>
+            • <strong>외부 기한 (9/15):</strong> 통제 불가<br>
+            • <strong>수동 확정:</strong> 자신의 의지로 앞당길 수 없음<br>
+            • <strong>단일 목표:</strong> 9/14 상담만이 유일한 경로<br>
+            • <strong>불확실성:</strong> 언제 확정될지 모름 + 알림 없음
+          </p>
+        </div>
+      </div>
+
+      <div class="analysis-box">
+        <h3>📌 Persona × 상황의 마찰</h3>
+        <p>
+          손지은은 "자신의 속도와 통제"를 원하는데,<br>
+          Step 6에서는 "외부 기한 + 수동 확정 + 불확실성"에 처해 있다.<br>
+          <br>
+          <strong>= 그녀의 가장 피하고 싶은 상황이 현실화됨</strong>
+        </p>
+      </div>
+    </section>
+
+    <!-- 정상 운영의 비용 -->
+    <section>
+      <h2>💰 정상 운영에서 발생하는 비용</h2>
+
       <table>
         <tr>
           <th>단계</th>
-          <th>사용자 행동</th>
-          <th>Front Stage</th>
-          <th>Back Stage</th>
-          <th>결과</th>
+          <th>발생하는 비용</th>
+          <th>이유</th>
         </tr>
         <tr>
-          <td><strong>1. 시작</strong></td>
-          <td>페이지 접속 (/)</td>
-          <td>역할 선택 버튼<br>(고객/어드민)</td>
-          <td>localStorage 읽기<br>초기 상태 로드</td>
-          <td>메인 페이지 렌더링</td>
-        </tr>
-        <tr>
-          <td><strong>2. 조회</strong></td>
-          <td>슬롯 확인</td>
-          <td>SlotTable 표시<br>14행 × 3열</td>
-          <td>state에서 조회<br>42개 슬롯 반환</td>
-          <td>가용 슬롯 표시</td>
-        </tr>
-        <tr>
-          <td><strong>3. 신청</strong></td>
-          <td>1-3개 선택<br>제출 버튼</td>
-          <td>선택 폼<br>체크박스</td>
-          <td>submitRequest() 실행<br>검증 (개수, 중복)</td>
-          <td>localStorage 저장<br>성공 메시지</td>
-        </tr>
-        <tr>
-          <td><strong>4. 확정</strong></td>
-          <td>어드민이 선택<br>확정 버튼</td>
-          <td>확정 버튼<br>결과 표시</td>
-          <td>confirmRequest() 실행<br>슬롯 마감<br>영향도 처리</td>
-          <td>슬롯 locked<br>영향받은 고객<br>needs_reselection</td>
-        </tr>
-        <tr>
-          <td><strong>5. 재신청</strong></td>
-          <td>알림 확인<br>새 슬롯 선택</td>
-          <td>재신청 폼<br>신청 버튼</td>
-          <td>resubmitRequest() 실행<br>version++<br>새 후보 저장</td>
-          <td>상태 → received<br>version 2 이상</td>
-        </tr>
-      </table>
-    </div>
-
-    <div class="section-info">
-      <h2>🔄 Supabase 모드 (Production Mode) - 실제 배포</h2>
-      <table>
-        <tr>
-          <th>단계</th>
-          <th>사용자 행동</th>
-          <th>Front Stage</th>
-          <th>Back Stage (RPC)</th>
-          <th>결과</th>
-        </tr>
-        <tr>
-          <td><strong>1. 인증</strong></td>
-          <td>회원가입<br>/supabase/signup</td>
-          <td>이메일 입력<br>비번 입력<br>가입 버튼</td>
-          <td>signUp() 호출<br>Supabase Auth</td>
-          <td>계정 생성<br>JWT 발급</td>
-        </tr>
-        <tr>
-          <td><strong>2. 로그인</strong></td>
-          <td>이메일/비번 입력<br>로그인 버튼<br>/supabase</td>
-          <td>로그인 폼</td>
-          <td>signIn() 호출<br>JWT 검증<br>app_metadata 확인</td>
-          <td>세션 저장<br>권한 판정</td>
-        </tr>
-        <tr>
-          <td><strong>3. 권한 분기</strong></td>
-          <td>인증 완료 후</td>
-          <td>로딩 중...</td>
-          <td>getAdminStatus() 호출<br>app_metadata.role 확인<br>admin vs customer</td>
-          <td>/customer 또는<br>/admin 라우팅</td>
-        </tr>
-        <tr>
-          <td><strong>4. 데이터</strong></td>
-          <td>페이지 로드</td>
-          <td>로딩 스피너</td>
-          <td>RPC: fetch_slots()<br>RPC: fetch_requests()<br>RPC: fetch_candidates()</td>
-          <td>Supabase DB에서<br>데이터 로드</td>
-        </tr>
-        <tr>
-          <td><strong>5. 제출</strong></td>
-          <td>슬롯 선택<br>제출 버튼</td>
-          <td>신청 폼</td>
-          <td>RPC: submit_request()<br>- 트랜잭션 시작<br>- 검증<br>- insert requests<br>- insert candidates<br>- operation_log 기록</td>
-          <td>DB에 저장됨<br>성공 알림<br>상태 → received</td>
-        </tr>
-        <tr>
-          <td><strong>6. 확정</strong></td>
-          <td>어드민 확정<br>확정 버튼</td>
-          <td>후보 목록<br>확정 버튼</td>
-          <td>RPC: confirm_request()<br>- 트랜잭션 시작<br>- 슬롯 업데이트<br>- 영향도 조사<br>- 자동 needs_reselection<br>- commitments 기록</td>
-          <td>DB 즉시 반영<br>다른 고객<br>needs_reselection</td>
-        </tr>
-        <tr>
-          <td><strong>7. 재신청</strong></td>
-          <td>재신청 버튼</td>
-          <td>새 슬롯 선택</td>
-          <td>RPC: resubmit_request()<br>- 상태 확인<br>- version++<br>- 새 후보 저장</td>
-          <td>상태 → received<br>version 2+</td>
-        </tr>
-      </table>
-    </div>
-
-    <div class="section-info">
-      <h2>🔀 핵심 프로세스 상세</h2>
-      <table>
-        <tr>
-          <th>프로세스</th>
-          <th>입력</th>
-          <th>검증</th>
-          <th>처리</th>
-          <th>출력</th>
-        </tr>
-        <tr>
-          <td><strong>Submit Request<br>(신청)</strong></td>
-          <td>customer_id<br>slot_ids (1-3)</td>
-          <td>✓ 개수 1-3<br>✓ 중복 없음<br>✓ 마감 안 됨<br>✓ 요청 없음</td>
-          <td>1. createRequest()<br>2. addCandidates()<br>3. priority 저장<br>4. log 기록</td>
-          <td>requests 저장<br>candidates 저장<br>상태 = received<br>operation_id</td>
-        </tr>
-        <tr>
-          <td><strong>Confirm Request<br>(확정)</strong></td>
-          <td>request_id<br>selected_slot_id<br>admin_id</td>
-          <td>✓ request 존재<br>✓ 상태 = received<br>✓ slot 가용<br>✓ candidate 포함</td>
-          <td>1. updateSlot()<br>2. status → confirmed<br>3. 영향도 조사<br>4. 자동 needs_reselection<br>5. confirmations 기록</td>
-          <td>slots locked<br>요청 confirmed<br>영향받은 고객<br>needs_reselection<br>operation_id</td>
-        </tr>
-        <tr>
-          <td><strong>Resubmit Request<br>(재신청)</strong></td>
-          <td>request_id<br>new_slot_ids<br>customer_id</td>
-          <td>✓ request 존재<br>✓ 상태 = needs_reselection<br>✓ 개수 1-3<br>✓ 중복 없음</td>
-          <td>1. version++<br>2. candidates 초기화<br>3. addCandidates()<br>4. status → received<br>5. log 기록</td>
-          <td>version >= 2<br>새 candidates<br>상태 = received<br>operation_id</td>
-        </tr>
-        <tr>
-          <td><strong>Status Decision<br>(상태 판정)</strong></td>
-          <td>request_id</td>
-          <td>✓ request 존재</td>
-          <td>decideRequestStatus()<br>- confirmed? YES<br>- all candidates locked?<br>- YES: needs_reselection</td>
-          <td>current<br>OR<br>confirmed<br>OR<br>needs_reselection</td>
-        </tr>
-      </table>
-    </div>
-
-    <div class="section-info">
-      <h2>🗂️ 라우팅 구조 (Routing Architecture)</h2>
-      <table>
-        <tr>
-          <th>경로</th>
-          <th>컴포넌트</th>
-          <th>인증</th>
-          <th>설명</th>
-          <th>사용 사례</th>
-        </tr>
-        <tr>
-          <td><strong>/</strong></td>
-          <td>LocalModePage</td>
-          <td>역할 선택</td>
-          <td>고객/어드민 교실 데모</td>
-          <td>수업 데모, 오프라인</td>
-        </tr>
-        <tr>
-          <td><strong>/supabase</strong></td>
-          <td>SupabaseAuthPage</td>
-          <td>로그인</td>
-          <td>이메일/비번 인증</td>
-          <td>신규 사용자</td>
-        </tr>
-        <tr>
-          <td><strong>/supabase/signup</strong></td>
-          <td>SupabaseAuthPage</td>
-          <td>가입</td>
-          <td>신규 계정 생성</td>
-          <td>회원가입</td>
-        </tr>
-        <tr>
-          <td><strong>/supabase/customer</strong></td>
-          <td>SupabaseCustomerPage</td>
-          <td>고객 권한</td>
-          <td>고객 신청/조회</td>
-          <td>고객이 로그인 후</td>
-        </tr>
-        <tr>
-          <td><strong>/supabase/admin</strong></td>
-          <td>SupabaseAdminPage</td>
-          <td>어드민 권한</td>
-          <td>어드민 확정 업무</td>
-          <td>어드민이 로그인 후</td>
-        </tr>
-        <tr>
-          <td><strong>/blueprint_as_is.html</strong></td>
-          <td>정적 HTML</td>
+          <td><strong>Step 1: 신청</strong></td>
           <td>없음</td>
-          <td>서비스 블루프린트 문서</td>
-          <td>서비스 이해</td>
-        </tr>
-      </table>
-    </div>
-
-    <div class="section-info">
-      <h2>💾 데이터 모델 (Supabase PostgreSQL)</h2>
-      <table>
-        <tr>
-          <th>테이블</th>
-          <th>주요 컬럼</th>
-          <th>설명</th>
-          <th>RLS 정책</th>
-          <th>특징</th>
+          <td>한 번의 명확한 입력</td>
         </tr>
         <tr>
-          <td><strong>slots</strong></td>
-          <td>id, date, time, status<br>confirmed_user_id</td>
-          <td>42개 고정 슬롯<br>(14일 × 3시간대)</td>
-          <td>모두 읽기 가능<br>서버만 쓰기</td>
-          <td>변경 불가<br>읽기 빠름</td>
+          <td><strong>Step 2: 상태확인</strong></td>
+          <td>앱 확인 1회</td>
+          <td>확인 필요하지만 기한 충분</td>
         </tr>
         <tr>
-          <td><strong>requests</strong></td>
-          <td>id, customer_id, status<br>version, created_at</td>
-          <td>고객 신청 기록<br>상태 추적</td>
-          <td>본인만 읽기<br>서버만 쓰기</td>
-          <td>버전 관리<br>타임스탬프</td>
-        </tr>
-        <tr>
-          <td><strong>candidates</strong></td>
-          <td>id, request_id<br>slot_id, priority</td>
-          <td>희망 슬롯<br>(1-3개/신청)</td>
-          <td>본인 신청만<br>서버만 쓰기</td>
-          <td>우선순위<br>버전별 저장</td>
-        </tr>
-        <tr>
-          <td><strong>confirmations</strong></td>
-          <td>id, request_id<br>slot_id, admin_id<br>created_at</td>
-          <td>어드민 확정 기록<br>감시 증거</td>
-          <td>어드민만 쓰기<br>모두 읽기</td>
-          <td>타임스탬프<br>감시추적</td>
-        </tr>
-        <tr>
-          <td><strong>operation_logs</strong></td>
-          <td>id, operation_id<br>type, data<br>created_at</td>
-          <td>모든 작업 기록<br>중복 방지</td>
-          <td>서버만 쓰기<br>모두 읽기</td>
-          <td>idempotency<br>감사 증거</td>
-        </tr>
-      </table>
-    </div>
-
-    <div class="section-info">
-      <h2>🎯 주요 특징</h2>
-      <table>
-        <tr>
-          <th>특징</th>
-          <th>로컬 모드</th>
-          <th>Supabase 모드</th>
-        </tr>
-        <tr>
-          <td><strong>저장소</strong></td>
-          <td>localStorage (JSON)</td>
-          <td>PostgreSQL (DB)</td>
-        </tr>
-        <tr>
-          <td><strong>인증</strong></td>
-          <td>역할 버튼</td>
-          <td>Supabase Auth (JWT)</td>
-        </tr>
-        <tr>
-          <td><strong>권한</strong></td>
-          <td>수동 선택</td>
-          <td>app_metadata.role</td>
-        </tr>
-        <tr>
-          <td><strong>동시성</strong></td>
+          <td><strong>Step 3: 마감확인</strong></td>
           <td>없음</td>
-          <td>DB Lock + RLS</td>
+          <td>마감 알림 명확, 재선택 경로 있음</td>
         </tr>
         <tr>
-          <td><strong>성능</strong></td>
-          <td>빠름 (메모리)</td>
-          <td>안정적 (DB)</td>
+          <td><strong>Step 4: 일정재확인</strong></td>
+          <td>개인 일정 재검토 (15~20분)</td>
+          <td>필요하지만 대체 경로 있음</td>
         </tr>
         <tr>
-          <td><strong>사용 처</strong></td>
-          <td>교실 수업</td>
-          <td>프로덕션 배포</td>
+          <td><strong>Step 5: 재신청제출</strong></td>
+          <td>없음</td>
+          <td>기능 정상, 새 신청 완료</td>
+        </tr>
+        <tr style="background: #fadbd8;">
+          <td><strong>Step 6: 확정대기</strong></td>
+          <td>
+            반복 확인 (7일)<br>
+            + 불안감<br>
+            + 자료 준비 시간 부족
+          </td>
+          <td>
+            관리자 수동 확정 시점 미정<br>
+            + 외부 알림 없음<br>
+            + 9/15 기한 = 최후의 기한
+          </td>
         </tr>
       </table>
-    </div>
+
+      <div class="improvement">
+        <strong>💡 개선 기회</strong>
+        <p>
+          <strong>Option 1:</strong> 상태 변경 푸시 알림<br>
+          "24~48시간 내 상태 업데이트 시 자동 알림" → 반복 확인 빈도 70% 감소<br>
+          <br>
+          <strong>Option 2:</strong> 기한 기반 자동 처리<br>
+          "D-2일(9/13) 미확정 시 자동 알림 발송" → 불확실성 해소<br>
+          <br>
+          <strong>Option 3:</strong> 대기 상황 명시<br>
+          "9/14 내 확정 약속" → Persona의 통제감 복구
+        </p>
+      </div>
+    </section>
+
+    <!-- 대화 핵심 요약 -->
+    <section>
+      <h2>📌 이 분석의 핵심 내용</h2>
+
+      <div class="research-note">
+        <h3>🎯 연구 프로세스: Persona → UJM → Painpoint</h3>
+
+        <p>
+          <strong>1단계: Persona 분석</strong><br>
+          손지은 = 37세, 무직, 살롱 운영 꿈, "자신의 속도와 취향 중시"<br>
+          <br>
+          <strong>2단계: User Journey Map 작성</strong><br>
+          가상 상황 (서점 인수, 9/15 기한)에서 예약 앱 사용 과정 6단계 분석<br>
+          각 단계마다 emotion_score 1~5점 부여<br>
+          <br>
+          <strong>3단계: Painpoint 식별</strong><br>
+          6단계 중 Step 6 (확정대기)가 emotion_score = 2 (긴장)<br>
+          <br>
+          <strong>4단계: 근거 분석</strong><br>
+          • <strong>Persona 근거:</strong> "통제 원함" + "속도 중시"<br>
+          • <strong>상황 근거:</strong> "9/15 마지막 기한" + "수동 확정 미정" + "알림 없음"<br>
+          • <strong>교집합:</strong> 가장 피하고 싶은 상황이 현실화됨 (통제 불가 + 불확실성)<br>
+          <br>
+          <strong>결론:</strong> Step 6이 emotion_score 2인 다른 단계(Step 2)보다 부정적인 이유는<br>
+          "긴장의 심도"가 아니라 "기한 압박 + 대체 경로 없음 + Persona 목표 직결"이기 때문
+        </p>
+      </div>
+
+      <h3>🔍 정상 운영과 불편의 구분</h3>
+      <div class="analysis-box">
+        <p>
+          이 분석에서 중요한 점:<br>
+          <br>
+          <strong>✓ 정상 운영:</strong> 모든 기능이 제대로 작동함<br>
+          • 신청 성공, 재신청 성공, 상태 표시 명확<br>
+          • 시스템 오류, 저장 실패, 버튼 실종 없음<br>
+          <br>
+          <strong>✗ 그럼에도 불편:</strong> 정상 기능 때문에 발생하는 비용<br>
+          • 수동 확정 = 사용자 대기 필수<br>
+          • 알림 없음 = 사용자 주기적 확인 필수<br>
+          • 단일 기한 = 대체 경로 없음<br>
+          <br>
+          <strong>💡 개선점:</strong> 버그 해결이 아니라 대기의 불확실성을 줄이기
+        </p>
+      </div>
+    </section>
+
+    <!-- 최종 요약 -->
+    <section>
+      <h2>✅ 최종 결론</h2>
+
+      <table style="font-size: 1em;">
+        <tr>
+          <th colspan="2" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); text-align: center;">1순위 Painpoint 선택: Step 6 "확정대기"</th>
+        </tr>
+        <tr>
+          <td><strong>Persona 특징</strong></td>
+          <td>자신의 속도·취향·통제를 중시하는 독립적 성향 + 살롱 운영 꿈</td>
+        </tr>
+        <tr>
+          <td><strong>처한 상황</strong></td>
+          <td>9/15 점주 퇴사 (외부 기한) + 수동 확정 미정 + 알림 없음</td>
+        </tr>
+        <tr>
+          <td><strong>Step 6의 불편</strong></td>
+          <td>반복 확인 + 불안감 + 자료 준비 시간 부족 + 살롱 운영안 정리 실패 위험</td>
+        </tr>
+        <tr>
+          <td><strong>다른 2점 단계와의 차이</strong></td>
+          <td>기한 압박 + 대체 경로 없음 + Persona 목표 직결</td>
+        </tr>
+        <tr>
+          <td><strong>개선 방향</strong></td>
+          <td>상태 알림 + 기한 기반 자동 처리 + 기한 약속</td>
+        </tr>
+      </table>
+    </section>
 
     <div class="footer">
-      <p><strong>cal.dudu-works.com v1.0</strong> - 수업용 기본 실습 앱</p>
-      <p>42개 고정 슬롯 (14일 × 3시간대) | 고객 1-3개 희망 신청 | 어드민 수동 확정 | 자동 재선택 판정</p>
-      <p style="font-size: 0.85em; margin-top: 15px; color: #999;">
-        로컬 모드: 교실 데모 | Supabase 모드: 프로덕션 시스템
+      <p><strong>cal.dudu Service Blueprint (As-Is)</strong></p>
+      <p>UX 리서치 Playbook 기반 | Persona: 손지은 | 가상 상황: 서점 인수 + 9/15 기한</p>
+      <p style="margin-top: 15px; font-size: 0.85em; color: #999;">
+        📊 분석 방법: Persona 축 정의 → User Journey Map 6단계 → 각 단계 감정점수 부여 → Painpoint 근거 분석<br>
+        🔍 데이터: 정상 운영 기능만 고려 (버그/오류 없음) | 불편 = 정상 기능의 비용
       </p>
     </div>
   </div>
