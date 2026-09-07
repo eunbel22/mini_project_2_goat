@@ -20,18 +20,26 @@ export const AuthPage: React.FC<AuthPageProps> = ({ onAuthSuccess, onError }) =>
     }
 
     setLoading(true);
-    const { data, error } = await signIn(email, password);
+    try {
+      const { data, error } = await signIn(email, password);
+      console.log('SignIn result:', { data, error });
 
-    if (error) {
-      onError(error.message);
-      setLoading(false);
-      return;
-    }
+      if (error) {
+        console.error('SignIn error:', error);
+        onError(error.message);
+        setLoading(false);
+        return;
+      }
 
-    if (data?.user) {
-      onAuthSuccess(data.user.id, data.user.email || '');
-    } else {
-      onError('로그인 실패');
+      if (data?.user) {
+        console.log('SignIn success:', data.user);
+        onAuthSuccess(data.user.id, data.user.email || '');
+      } else {
+        onError('로그인 실패');
+      }
+    } catch (err: any) {
+      console.error('SignIn exception:', err);
+      onError(err.message || '로그인 중 오류 발생');
     }
     setLoading(false);
   };

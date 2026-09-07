@@ -4,7 +4,7 @@ import { AdminPage } from '../components/AdminPage';
 import { AuthPage } from '../components/AuthPage';
 import { DatabaseManager } from '../utils/database';
 import { REFERENCE_TIME } from '../utils/constants';
-import { getCurrentSession, signOut } from '../utils/supabase';
+import { getCurrentSession, signOut, getAdminStatus } from '../utils/supabase';
 
 type Mode = 'local' | 'supabase';
 type Role = 'customer' | 'admin';
@@ -29,24 +29,23 @@ const App: React.FC = () => {
       setUserId(data.session.user.id);
       setUserEmail(data.session.user.email || '');
       setMode('supabase');
-      checkAdminStatus(data.session.user.id);
+      await checkAdminStatus();
     }
     setAuthLoading(false);
   };
 
-  const checkAdminStatus = async (uid: string) => {
-    // Admin status는 Supabase user metadata에서 확인
-    // 실제 구현에서는 app_metadata 확인 필요
-    const isAdminUser = localStorage.getItem(`admin_${uid}`) === 'true';
+  const checkAdminStatus = async () => {
+    const isAdminUser = await getAdminStatus();
     setIsAdmin(isAdminUser);
+    console.log('Admin status:', isAdminUser);
   };
 
-  const handleAuthSuccess = (newUserId: string, newEmail: string) => {
+  const handleAuthSuccess = async (newUserId: string, newEmail: string) => {
     setUserId(newUserId);
     setUserEmail(newEmail);
     setMode('supabase');
     setAuthError('');
-    checkAdminStatus(newUserId);
+    await checkAdminStatus();
   };
 
   const handleSignOut = async () => {

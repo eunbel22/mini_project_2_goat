@@ -43,3 +43,14 @@ export async function getCurrentSession() {
   const { data, error } = await supabase.auth.getSession();
   return { data, error };
 }
+
+export async function getAdminStatus() {
+  const { data } = await supabase.auth.getUser();
+  if (!data?.user) {
+    return false;
+  }
+
+  const user = data.user;
+  const appMetadata = user.app_metadata || {};
+  return appMetadata.role === 'admin';
+}
