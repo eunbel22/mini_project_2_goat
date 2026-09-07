@@ -798,6 +798,81 @@
       </table>
     </div>
 
+    <!-- 📊 오늘 기능 구현 MoSCoW 우선순위 분류표 -->
+    <div class="section-info" style="border: 2px solid #2980b9; background: #f0f7fc;">
+      <h2 style="color: #2980b9;">📊 오늘 기능 구현 MoSCoW 우선순위 분류표</h2>
+      <p style="margin-bottom: 15px; color: #555;">
+        오늘 진행된 아이디어 개선 및 구현 항목의 MoSCoW 분류입니다. 구현이 완료된 기능은 <strong>(완)</strong> 표기가 지정되어 있습니다.
+      </p>
+      <table>
+        <tr style="background: #d4e6f1;">
+          <th>MoSCoW 구분</th>
+          <th>기능 ID 및 이름</th>
+          <th>상세 설명 및 구현 상태</th>
+        </tr>
+        <tr>
+          <td><strong style="color: #c0392b;">Must Have (필수)</strong></td>
+          <td>
+            • S6-02: 내 신청 상태 바로보기 <strong>(완)</strong><br>
+            • S6-05: 관리자 기한 배지 <strong>(완)</strong><br>
+            • S6-08: 점주에게 받을 자료 메모 <strong>(완)</strong><br>
+            • S1-08 / S5-08: 신청 전 접수/확정 안내 <strong>(완)</strong>
+          </td>
+          <td>
+            • 메인 진입 즉시 신청 요약 카드로 상태 표시 <strong>(완)</strong><br>
+            • 어드민 신청 목록 D-Day 기한 배지 표시 <strong>(완)</strong><br>
+            • 대기 중 인수인계 서류 체크리스트 및 메모장 <strong>(완)</strong><br>
+            • 제출 전 접수/수동 확정 규칙 파란색 안내 박스 <strong>(완)</strong>
+          </td>
+        </tr>
+        <tr>
+          <td><strong style="color: #d35400;">Should Have (권장)</strong></td>
+          <td>
+            • S6-01: 확정 시 고객 알림 <strong>(완)</strong><br>
+            • S6-10: 미확정 일정 메모 <strong>(완)</strong><br>
+            • S4-03 / S4-08: 시간대 필터 <strong>(완)</strong><br>
+            • S1-06: 희망 순위 순서 변경 <strong>(완)</strong><br>
+            • S2-04: 마지막 갱신 시각 & 새로고침 <strong>(완)</strong>
+          </td>
+          <td>
+            • 어드민 확정 시 인앱 축하 알림 배너 <strong>(완)</strong><br>
+            • 미확정 대기 중 개인 일정 오해 방지 안내 <strong>(완)</strong><br>
+            • 슬롯 표 상단 시간대별(전체/오전/오후/저녁) 필터 <strong>(완)</strong><br>
+            • 선택한 슬롯 ▲/▼ 버튼으로 희망 순위 조정 <strong>(완)</strong><br>
+            • 상태 조회 시각 표시 및 🔄 지금 다시 확인 버튼 <strong>(완)</strong>
+          </td>
+        </tr>
+        <tr>
+          <td><strong style="color: #27ae60;">Could Have (선택)</strong></td>
+          <td>
+            • S6-03: 알림 수신 여부 표시 <strong>(완)</strong><br>
+            • S6-09: 확정되면 할 일 목록 <strong>(완)</strong><br>
+            • S6-07: 어드민 점검 필터 <strong>(완)</strong><br>
+            • S3-04: 재선택하기 한곳에 모으기 <strong>(완)</strong>
+          </td>
+          <td>
+            • 확정 알림 수신 동의 상태 표시 토글 <strong>(완)</strong><br>
+            • 확정 성공 시 3단계 진행 가이드 체크리스트 <strong>(완)</strong><br>
+            • 어드민 신청 목록 상태별 필터 버튼 <strong>(완)</strong><br>
+            • 재선택 필요 시 경고 및 직관적 재선택 버튼 <strong>(완)</strong>
+          </td>
+        </tr>
+        <tr>
+          <td><strong style="color: #7f8c8d;">Won't Have (제외)</strong></td>
+          <td>
+            • S6-04: 정해 둔 시각에 확인 알림<br>
+            • S6-06: 오래 기다린 신청 Slack 알림<br>
+            • 외부 이메일/SMS 발송 인프라
+          </td>
+          <td>
+            • 백그라운드 타임 타이머 알림 (시간/복잡도로 제외)<br>
+            • AGENTS.md 규정상 외부 Slack/Edge Function 제한<br>
+            • 외부 메일 서버 대신 인앱 알림 배너로 대체 구현
+          </td>
+        </tr>
+      </table>
+    </div>
+
     <!-- 🟡 Highlight: Service Blueprint As-Is 수정 포인트 -->
     <div class="section-info" style="border: 2px dashed #e74c3c; background: #fffdfd;">
       <h2 style="color: #c0392b;">⚡ Service Blueprint As-Is 수정 포인트 (Highlight)</h2>
