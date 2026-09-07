@@ -141,7 +141,7 @@ export const CustomerPage: React.FC<CustomerPageProps> = ({ db, mode, userId }) 
       }
 
       if (result.success) {
-        setSuccess('신청이 완료되었습니다!');
+        setSuccess('신청이 접수되었습니다! ⏱️ 5분 이내에 우선순위(1순위➔2순위➔3순위)에 따라 확정이 완료됩니다.');
         setSelectedSlots([]);
         setStage('view');
         setTimeout(() => loadData(), 500);
@@ -305,9 +305,9 @@ export const CustomerPage: React.FC<CustomerPageProps> = ({ db, mode, userId }) 
       {stage === 'confirm' && checkSlotAvailability() && (
         <div>
           <h3>최종 확인</h3>
-          {/* S1-08 · 신청 전 한 문장 안내 & S5-08 · 재접수와 확정 구분 */}
+          {/* S1-08 · 신청 전 한 문장 안내 & S5-08 · 재접수와 확정 구분 & S2-08 5분 내 확정 안내 */}
           <div style={{ padding: '10px 14px', backgroundColor: '#e8f4f8', border: '1px solid #b8daff', color: '#004085', borderRadius: '4px', fontSize: '13px', marginBottom: '16px' }}>
-            💡 <strong>신청 안내 (S1-08 / S5-08):</strong> 제출 시 '접수'되며, 관리자가 선택한 희망 후보 중 하나를 수동 확정해야 최종 예약이 완료됩니다. (접수는 슬롯을 점유하지 않습니다.)
+            💡 <strong>신청 및 확정 안내 (S1-08 / S5-08 / S2-08):</strong> 제출 시 '접수'되며, ⏱️ <strong>5분 이내</strong>에 희망 순위(1순위➔2순위➔3순위)에 따라 자동/수동 확정이 완결됩니다. (접수는 슬롯을 점유하지 않습니다.)
           </div>
           <SlotTable slots={slots} selectedSlots={selectedSlots} onToggle={() => {}} mode="view" />
 

@@ -106,6 +106,51 @@ export const AdminPage: React.FC<AdminPageProps> = ({ db, mode, userId }) => {
 
   const currentRequest = selectedRequest ? requests.find(r => r.request.id === selectedRequest) : null;
 
+  const handleAutoConfirm = async () => {
+    if (!currentRequest) return;
+    const sortedCandidates = [...currentRequest.candidates].sort((a, b) => a.priority - b.priority);
+    const firstAvailable = sortedCandidates.find(c => slots[c.slotId]?.status === 'available');
+
+    if (!firstAvailable) {
+      setError('신청한 3개 후보 슬롯이 모두 마감되어 자동 확정할 수 없습니다.');
+      return;
+    }
+
+    setSelectedSlotForConfirm(firstAvailable.slotId);
+    setLoading(true);
+    setError('');
+    setSuccess('');
+
+    try {
+      let result;
+      if (mode === 'supabase') {
+        result = await confirmToSupabase(currentRequest.request.id, firstAvailable.slotId, adminId);
+      } else {
+        const operationId = `autoconfirm-${currentRequest.request.id}-${firstAvailable.slotId}-${Date.now()}`;
+        result = await om.confirmRequest(
+          currentRequest.request.id,
+          firstAvailable.slotId,
+          adminId,
+          operationId
+        );
+      }
+
+      if (result.success) {
+        const confirmedSlotObj = slots[firstAvailable.slotId];
+        setSuccess(`🤖 자동 매칭 완료! ${firstAvailable.priority}순위 (${confirmedSlotObj?.date}) 슬롯으로 즉시 확정되었습니다.`);
+        setSelectedRequest(null);
+        setSelectedSlotForConfirm(null);
+        setTimeout(() => loadData(), 500);
+      } else {
+        setError(result.error || '자동 확정 실패');
+      }
+    } catch (err) {
+      setError(String(err));
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="admin-page">
       <h2>어드민 패널</h2>
@@ -281,14 +326,24 @@ export const AdminPage: React.FC<AdminPageProps> = ({ db, mode, userId }) => {
               )}
 
               {currentRequest.request.status !== 'confirmed' && (
-                <button
-                  className="btn btn-success"
-                  onClick={handleConfirm}
-                  disabled={!selectedSlotForConfirm || loading}
-                  style={{ marginTop: '10px', width: '100%' }}
-                >
-                  {loading ? '처리 중...' : '확정'}
-                </button>
+                <div style={{ marginTop: '12px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                  <button
+                    className="btn btn-primary"
+                    onClick={handleAutoConfirm}
+                    disabled={loading}
+                    style={{ width: '100%', background: '#28a745', borderColor: '#28a745', fontWeight: 'bold' }}
+                  >
+                    {loading ? '처리 중...' : '🤖 1순위 우선 자동 확정 (Auto-Matching)'}
+                  </button>
+                  <button
+                    className="btn btn-secondary"
+                    onClick={handleConfirm}
+                    disabled={!selectedSlotForConfirm || loading}
+                    style={{ width: '100%' }}
+                  >
+                    {loading ? '처리 중...' : '수동 확정 (선택한 슬롯)'}
+                  </button>
+                </div>
               )}
             </div>
           ) : (
