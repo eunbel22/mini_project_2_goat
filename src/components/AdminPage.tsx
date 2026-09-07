@@ -4,6 +4,8 @@ import type { Slot, Request, Candidate, OperationLog } from '../types';
 import { OperationManager } from '../utils/operations';
 import { DatabaseManager } from '../utils/database';
 import { TIME_SLOTS } from '../utils/constants';
+import { loadAdminDataFromSupabase, confirmToSupabase } from '../utils/supabaseData';
+import { decideRequestStatus } from '../utils/decide';
 
 interface AdminPageProps {
   db: DatabaseManager;
@@ -11,9 +13,8 @@ interface AdminPageProps {
   userId?: string;
 }
 
-export const AdminPage: React.FC<AdminPageProps> = ({ db }) => {
-  // mode와 userId는 향후 Supabase 모드에서 사용
-  const [adminId] = useState<string>('ADMIN001');
+export const AdminPage: React.FC<AdminPageProps> = ({ db, mode, userId }) => {
+  const [adminId] = useState<string>(userId || 'ADMIN001');
   const [slots, setSlots] = useState<Record<string, Slot>>({});
   const [requests, setRequests] = useState<
     Array<{ request: Request; candidates: Candidate[]; decision: any }>
@@ -32,13 +33,35 @@ export const AdminPage: React.FC<AdminPageProps> = ({ db }) => {
     loadData();
   }, []);
 
-  const loadData = () => {
-    const state = db.getState();
-    setSlots(state.slots);
-    setRequests(om.getAdminRequests());
-    setLogs(state.logs || []);
+  const loadData = async () => {
     setError('');
     setSuccess('');
+
+    if (mode === 'supabase') {
+      try {
+        const { slots: slotsData, requests: reqs, candidates } = await loadAdminDataFromSupabase();
+        setSlots(slotsData);
+
+        // 요청 상태 계산
+        const adminReqs = reqs.map(request => {
+          const requestCandidates = candidates.filter(c => c.requestId === request.id);
+          const decision = decideRequestStatus(request, requestCandidates, slotsData);
+          return { request, candidates: requestCandidates, decision };
+        });
+
+        setRequests(adminReqs);
+        setLogs([]);
+      } catch (err) {
+        console.error('Failed to load admin data:', err);
+        setError('데이터 로드 실패');
+      }
+    } else {
+      // 로컬 모드
+      const state = db.getState();
+      setSlots(state.slots);
+      setRequests(om.getAdminRequests());
+      setLogs(state.logs || []);
+    }
   };
 
   const handleConfirm = async () => {
@@ -52,13 +75,18 @@ export const AdminPage: React.FC<AdminPageProps> = ({ db }) => {
     setSuccess('');
 
     try {
-      const operationId = `confirm-${selectedRequest}-${selectedSlotForConfirm}-${Date.now()}`;
-      const result = await om.confirmRequest(
-        selectedRequest,
-        selectedSlotForConfirm,
-        adminId,
-        operationId
-      );
+      let result;
+      if (mode === 'supabase') {
+        result = await confirmToSupabase(selectedRequest, selectedSlotForConfirm, adminId);
+      } else {
+        const operationId = `confirm-${selectedRequest}-${selectedSlotForConfirm}-${Date.now()}`;
+        result = await om.confirmRequest(
+          selectedRequest,
+          selectedSlotForConfirm,
+          adminId,
+          operationId
+        );
+      }
 
       if (result.success) {
         setSuccess(`확정되었습니다! 영향받은 요청: ${result.affectedRequests?.length || 0}건`);
