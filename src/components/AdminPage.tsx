@@ -106,54 +106,83 @@ export const AdminPage: React.FC<AdminPageProps> = ({ db, mode, userId }) => {
 
   const currentRequest = selectedRequest ? requests.find(r => r.request.id === selectedRequest) : null;
 
-  const handleAutoConfirm = async () => {
-    if (!currentRequest) return;
-    const sortedCandidates = [...currentRequest.candidates].sort((a, b) => a.priority - b.priority);
-    const firstAvailable = sortedCandidates.find(c => slots[c.slotId]?.status === 'available');
+  const handleBatchAutoConfirm = async () => {
+    // 접수 대기(received) 상태인 모든 요청을 선착순(createdAt 오름차순)으로 정렬
+    const pendingReqs = requests
+      .filter(r => r.request.status === 'received')
+      .sort((a, b) => new Date(a.request.createdAt).getTime() - new Date(b.request.createdAt).getTime());
 
-    if (!firstAvailable) {
-      setError('신청한 3개 후보 슬롯이 모두 마감되어 자동 확정할 수 없습니다.');
+    if (pendingReqs.length === 0) {
+      setError('현재 자동 확정할 대기 중인 접수 건이 없습니다.');
       return;
     }
 
-    setSelectedSlotForConfirm(firstAvailable.slotId);
     setLoading(true);
     setError('');
     setSuccess('');
 
-    try {
-      let result;
-      if (mode === 'supabase') {
-        result = await confirmToSupabase(currentRequest.request.id, firstAvailable.slotId, adminId);
-      } else {
-        const operationId = `autoconfirm-${currentRequest.request.id}-${firstAvailable.slotId}-${Date.now()}`;
-        result = await om.confirmRequest(
-          currentRequest.request.id,
-          firstAvailable.slotId,
-          adminId,
-          operationId
-        );
-      }
+    let successCount = 0;
+    let failCount = 0;
+    let currentSlots = { ...slots };
 
-      if (result.success) {
-        const confirmedSlotObj = slots[firstAvailable.slotId];
-        setSuccess(`🤖 자동 매칭 완료! ${firstAvailable.priority}순위 (${confirmedSlotObj?.date}) 슬롯으로 즉시 확정되었습니다.`);
-        setSelectedRequest(null);
-        setSelectedSlotForConfirm(null);
-        setTimeout(() => loadData(), 500);
+    for (const item of pendingReqs) {
+      // 1~3순위 후보 중 현재 사용 가능한 슬롯 탐색 (FIFO 접수순)
+      const sortedCandidates = [...item.candidates].sort((a, b) => a.priority - b.priority);
+      const firstAvailable = sortedCandidates.find(c => currentSlots[c.slotId]?.status === 'available');
+
+      if (firstAvailable) {
+        try {
+          let result;
+          if (mode === 'supabase') {
+            result = await confirmToSupabase(item.request.id, firstAvailable.slotId, adminId);
+          } else {
+            const operationId = `batch-confirm-${item.request.id}-${firstAvailable.slotId}-${Date.now()}`;
+            result = await om.confirmRequest(
+              item.request.id,
+              firstAvailable.slotId,
+              adminId,
+              operationId
+            );
+          }
+
+          if (result.success) {
+            successCount++;
+            // 슬롯 현황 갱신
+            currentSlots = {
+              ...currentSlots,
+              [firstAvailable.slotId]: { ...currentSlots[firstAvailable.slotId], status: 'confirmed' }
+            };
+          } else {
+            failCount++;
+          }
+        } catch {
+          failCount++;
+        }
       } else {
-        setError(result.error || '자동 확정 실패');
+        failCount++;
       }
-    } catch (err) {
-      setError(String(err));
-    } finally {
-      setLoading(false);
     }
+
+    setSuccess(`⚡ 선착순 배치 자동 확정 완료! (성공: ${successCount}건 / 불가 또는 실패: ${failCount}건)`);
+    setSelectedRequest(null);
+    setSelectedSlotForConfirm(null);
+    setTimeout(() => loadData(), 500);
+    setLoading(false);
   };
 
   return (
     <div className="admin-page">
-      <h2>어드민 패널</h2>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+        <h2>어드민 패널</h2>
+        <button
+          className="btn btn-primary"
+          onClick={handleBatchAutoConfirm}
+          disabled={loading || requests.filter(r => r.request.status === 'received').length === 0}
+          style={{ background: '#28a745', borderColor: '#28a745', fontWeight: 'bold', padding: '8px 16px', fontSize: '13px' }}
+        >
+          {loading ? '일괄 자동 처리 중...' : `⚡ 접수순 1순위 일괄 자동 확정 (대기 ${requests.filter(r => r.request.status === 'received').length}건)`}
+        </button>
+      </div>
 
       {error && <div className="alert alert-error">{error}</div>}
       {success && <div className="alert alert-success">{success}</div>}
@@ -329,7 +358,7 @@ export const AdminPage: React.FC<AdminPageProps> = ({ db, mode, userId }) => {
                 <div style={{ marginTop: '12px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
                   <button
                     className="btn btn-primary"
-                    onClick={handleAutoConfirm}
+                    onClick={handleBatchAutoConfirm}
                     disabled={loading}
                     style={{ width: '100%', background: '#28a745', borderColor: '#28a745', fontWeight: 'bold' }}
                   >
