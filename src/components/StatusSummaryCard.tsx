@@ -30,6 +30,18 @@ export const StatusSummaryCard: React.FC<StatusSummaryCardProps> = ({ request, c
         </div>
       )}
 
+      {/* S6-09 · 확정되면 할 일 목록 */}
+      {request.status === 'confirmed' && (
+        <div style={{ padding: '10px 14px', backgroundColor: '#e2f0d9', border: '1px solid #c5e1a5', borderRadius: '4px', marginBottom: '12px', fontSize: '13px' }}>
+          <strong style={{ color: '#2e7d32', display: 'block', marginBottom: '6px' }}>📋 확정 후 진행 가이드 (S6-09)</strong>
+          <ul style={{ margin: 0, paddingLeft: '18px', color: '#333' }}>
+            <li>1단계: 상담 10분 전 서점 위치 및 교통편 재확인</li>
+            <li>2단계: 작성해 둔 자료/질문 메모장 (S6-08) 검토</li>
+            <li>3단계: 상담 종료 후 점주와 양도/인수인계 일정 최종 협의</li>
+          </ul>
+        </div>
+      )}
+
       {/* S6-02 · 내 신청 상태 바로보기 */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
         <h4 style={{ margin: 0 }}>내 신청 상태 요약 (v{request.version})</h4>

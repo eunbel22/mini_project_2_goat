@@ -22,6 +22,7 @@ export const AdminPage: React.FC<AdminPageProps> = ({ db, mode, userId }) => {
   const [logs, setLogs] = useState<OperationLog[]>([]);
   const [selectedRequest, setSelectedRequest] = useState<string | null>(null);
   const [selectedSlotForConfirm, setSelectedSlotForConfirm] = useState<string | null>(null);
+  const [filterStatus, setFilterStatus] = useState<'all' | 'received' | 'confirmed' | 'needs_reselection'>('all');
   const [error, setError] = useState<string>('');
   const [success, setSuccess] = useState<string>('');
   const [loading, setLoading] = useState(false);
@@ -116,9 +117,43 @@ export const AdminPage: React.FC<AdminPageProps> = ({ db, mode, userId }) => {
         {/* 요청 목록 */}
         <div>
           <h3>신청 목록 (총 {requests.length}건)</h3>
+          {/* S6-07 · 후보 시작 전 / 상태별 관리자 점검 필터 */}
+          <div style={{ display: 'flex', gap: '4px', marginBottom: '8px', flexWrap: 'wrap' }}>
+            <button
+              className={`btn ${filterStatus === 'all' ? 'btn-primary' : 'btn-secondary'}`}
+              style={{ fontSize: '11px', padding: '2px 6px' }}
+              onClick={() => setFilterStatus('all')}
+            >
+              전체 ({requests.length})
+            </button>
+            <button
+              className={`btn ${filterStatus === 'received' ? 'btn-primary' : 'btn-secondary'}`}
+              style={{ fontSize: '11px', padding: '2px 6px' }}
+              onClick={() => setFilterStatus('received')}
+            >
+              ⏳ 대기 중 ({requests.filter(r => r.request.status === 'received').length})
+            </button>
+            <button
+              className={`btn ${filterStatus === 'confirmed' ? 'btn-primary' : 'btn-secondary'}`}
+              style={{ fontSize: '11px', padding: '2px 6px' }}
+              onClick={() => setFilterStatus('confirmed')}
+            >
+              확정됨 ({requests.filter(r => r.request.status === 'confirmed').length})
+            </button>
+            <button
+              className={`btn ${filterStatus === 'needs_reselection' ? 'btn-primary' : 'btn-secondary'}`}
+              style={{ fontSize: '11px', padding: '2px 6px' }}
+              onClick={() => setFilterStatus('needs_reselection')}
+            >
+              재선택 필요 ({requests.filter(r => r.request.status === 'needs_reselection').length})
+            </button>
+          </div>
+
           <div style={{ maxHeight: '500px', overflowY: 'auto', border: '1px solid #ddd', borderRadius: '4px' }}>
             <ul className="list" style={{ margin: 0 }}>
-              {requests.map((item, idx) => (
+              {requests
+                .filter(item => filterStatus === 'all' || item.request.status === filterStatus)
+                .map((item, idx) => (
                 <li
                   key={item.request.id}
                   onClick={() => {

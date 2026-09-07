@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import type { Slot } from '../types';
 import { TIME_SLOTS, getAllDates } from '../utils/constants';
 
@@ -18,14 +18,41 @@ export const SlotTable: React.FC<SlotTableProps> = ({
   mode = 'view',
 }) => {
   const dates = getAllDates();
+  const [filterTime, setFilterTime] = useState<'all' | 'am' | 'pm' | 'evening'>('all');
+
+  const visibleTimeSlots = filterTime === 'all' 
+    ? TIME_SLOTS 
+    : TIME_SLOTS.filter(t => t.label === filterTime);
 
   return (
     <div className="table-container">
+      {/* S4-03 · 오전·오후·저녁 시간대 필터 */}
+      <div style={{ marginBottom: '10px', display: 'flex', gap: '8px', alignItems: 'center' }}>
+        <span style={{ fontSize: '13px', fontWeight: 'bold', color: '#555' }}>🕒 시간대 필터 (S4-03):</span>
+        <button
+          className={`btn ${filterTime === 'all' ? 'btn-primary' : 'btn-secondary'}`}
+          style={{ padding: '3px 10px', fontSize: '12px' }}
+          onClick={() => setFilterTime('all')}
+        >
+          전체 보기
+        </button>
+        {TIME_SLOTS.map(t => (
+          <button
+            key={t.label}
+            className={`btn ${filterTime === t.label ? 'btn-primary' : 'btn-secondary'}`}
+            style={{ padding: '3px 10px', fontSize: '12px' }}
+            onClick={() => setFilterTime(t.label as any)}
+          >
+            {t.displayLabel}
+          </button>
+        ))}
+      </div>
+
       <table className="slots-table">
         <thead>
           <tr>
             <th style={{ width: '120px' }}>날짜</th>
-            {TIME_SLOTS.map(slot => (
+            {visibleTimeSlots.map(slot => (
               <th key={slot.label} style={{ width: '140px' }}>
                 {slot.displayLabel}
               </th>
@@ -36,7 +63,7 @@ export const SlotTable: React.FC<SlotTableProps> = ({
           {dates.map(date => (
             <tr key={date}>
               <td>{date}</td>
-              {TIME_SLOTS.map(timeSlot => {
+              {visibleTimeSlots.map(timeSlot => {
                 const slotId = `${date}:${timeSlot.label}`;
                 const slot = slots[slotId];
                 const isSelected = selectedSlots.includes(slotId);
