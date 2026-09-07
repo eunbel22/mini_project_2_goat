@@ -1,0 +1,541 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>cal.dudu Service Blueprint (As-Is)</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      line-height: 1.6;
+      color: #333;
+      background: #f5f5f5;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 40px 20px;
+    }
+
+    header {
+      background: white;
+      padding: 40px;
+      border-radius: 8px;
+      margin-bottom: 30px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    h1 {
+      font-size: 2.5em;
+      margin-bottom: 10px;
+      color: #1a1a1a;
+    }
+
+    .subtitle {
+      font-size: 1.1em;
+      color: #666;
+      margin-bottom: 15px;
+    }
+
+    .tags {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .tag {
+      background: #e3f2fd;
+      color: #1976d2;
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-size: 0.9em;
+      font-weight: 500;
+    }
+
+    section {
+      background: white;
+      padding: 30px;
+      margin-bottom: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    section h2 {
+      font-size: 1.8em;
+      margin-bottom: 20px;
+      padding-bottom: 10px;
+      border-bottom: 3px solid #1976d2;
+      color: #1a1a1a;
+    }
+
+    section h3 {
+      font-size: 1.3em;
+      margin-top: 25px;
+      margin-bottom: 15px;
+      color: #333;
+    }
+
+    .journey {
+      background: #f9f9f9;
+      padding: 20px;
+      border-radius: 5px;
+      margin: 15px 0;
+      font-family: monospace;
+      font-size: 0.95em;
+      overflow-x: auto;
+      border-left: 4px solid #1976d2;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 15px 0;
+      font-size: 0.95em;
+    }
+
+    th, td {
+      border: 1px solid #ddd;
+      padding: 12px;
+      text-align: left;
+    }
+
+    th {
+      background: #f0f0f0;
+      font-weight: 600;
+      color: #333;
+    }
+
+    tr:nth-child(even) {
+      background: #fafafa;
+    }
+
+    tr:hover {
+      background: #f0f7ff;
+    }
+
+    .feature-list {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+      margin: 20px 0;
+    }
+
+    .feature {
+      padding: 15px;
+      background: #f9f9f9;
+      border-radius: 5px;
+      border-left: 4px solid #4caf50;
+    }
+
+    .feature.out-of-scope {
+      border-left-color: #f44336;
+    }
+
+    .feature h4 {
+      margin-bottom: 5px;
+      color: #333;
+    }
+
+    .feature p {
+      font-size: 0.9em;
+      color: #666;
+    }
+
+    .process-flow {
+      background: #f0f7ff;
+      padding: 20px;
+      border-radius: 5px;
+      margin: 15px 0;
+      border: 2px dashed #1976d2;
+    }
+
+    .process-step {
+      display: flex;
+      align-items: center;
+      margin: 10px 0;
+      font-size: 0.95em;
+    }
+
+    .process-step::before {
+      content: '→';
+      display: inline-block;
+      margin-right: 10px;
+      color: #1976d2;
+      font-weight: bold;
+    }
+
+    .matrix {
+      background: #f0f0f0;
+      padding: 20px;
+      border-radius: 5px;
+      margin: 20px 0;
+      font-family: monospace;
+      font-size: 0.9em;
+      overflow-x: auto;
+    }
+
+    .footer {
+      background: #f5f5f5;
+      padding: 20px;
+      text-align: center;
+      color: #666;
+      margin-top: 40px;
+      border-radius: 8px;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 4px 8px;
+      margin-right: 5px;
+      border-radius: 3px;
+      font-size: 0.85em;
+      font-weight: 600;
+    }
+
+    .badge.implemented {
+      background: #4caf50;
+      color: white;
+    }
+
+    .badge.out-of-scope {
+      background: #f44336;
+      color: white;
+    }
+
+    @media (max-width: 768px) {
+      .feature-list {
+        grid-template-columns: 1fr;
+      }
+
+      h1 {
+        font-size: 2em;
+      }
+
+      section h2 {
+        font-size: 1.4em;
+      }
+
+      table {
+        font-size: 0.85em;
+      }
+
+      th, td {
+        padding: 8px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>cal.dudu Service Blueprint (As-Is)</h1>
+      <p class="subtitle">예약 시스템 기본 실습 앱</p>
+      <div class="tags">
+        <span class="tag">🎓 교육용</span>
+        <span class="tag">🔀 이중 모드</span>
+        <span class="tag">🔒 안전성</span>
+        <span class="tag">📊 감사추적</span>
+      </div>
+    </header>
+
+    <!-- 1. 개요 -->
+    <section>
+      <h2>📋 서비스 개요</h2>
+      <table>
+        <tr>
+          <th>항목</th>
+          <th>설명</th>
+        </tr>
+        <tr>
+          <td><strong>서비스명</strong></td>
+          <td>cal.dudu-works.com v1.0</td>
+        </tr>
+        <tr>
+          <td><strong>예약 기간</strong></td>
+          <td>2026-09-09 ~ 2026-09-22 (14일)</td>
+        </tr>
+        <tr>
+          <td><strong>슬롯 구성</strong></td>
+          <td>42개 고정 (14일 × 3시간대: 09:00, 13:00, 18:00)</td>
+        </tr>
+        <tr>
+          <td><strong>모드</strong></td>
+          <td>로컬 (Demo) / Supabase (Production)</td>
+        </tr>
+      </table>
+    </section>
+
+    <!-- 2. 고객 여정 -->
+    <section>
+      <h2>🚶 고객 여정</h2>
+
+      <h3>로컬 모드 (Classroom Demo)</h3>
+      <div class="journey">
+[입장] → [역할 선택] → [슬롯 조회] → [희망 신청] → [확인 제출]<br>
+   ↓                                            ↓<br>
+고객/어드민                              localStorage 저장<br>
+   ↓<br>
+[내 신청 조회] → [상태 확인] → [재선택 필요 시 재신청]
+      </div>
+
+      <h3>Supabase 모드 (Production)</h3>
+      <div class="journey">
+[회원가입/로그인] → [Auth 인증] → [역할 판정] → [슬롯 조회]<br>
+   ↓                           ↓<br>
+이메일/비밀번호        admin/customer<br>
+   ↓<br>
+[희망 신청] → [RPC 호출] → [Supabase DB 저장]<br>
+   ↓<br>
+[내 신청 조회] → [상태 확인] → [재선택 필요 시 재신청]
+      </div>
+    </section>
+
+    <!-- 3. 핵심 프로세스 -->
+    <section>
+      <h2>⚙️ 핵심 프로세스</h2>
+
+      <h3>신청 프로세스 (Submit Request)</h3>
+      <div class="process-flow">
+        <div class="process-step">고객 선택 (1~3개)</div>
+        <div class="process-step">검증 (개수, 중복, 마감 여부)</div>
+        <div class="process-step">로컬: createRequest() / Supabase: RPC</div>
+        <div class="process-step">저장 (localStorage / DB)</div>
+        <div class="process-step">후보 저장 (version=1, priority)</div>
+        <div class="process-step">성공 메시지 + 상태 갱신</div>
+      </div>
+
+      <h3>확정 프로세스 (Confirm Request)</h3>
+      <div class="process-flow">
+        <div class="process-step">어드민이 고객의 희망 슬롯 선택</div>
+        <div class="process-step">검증 (요청 존재, 유효성)</div>
+        <div class="process-step">슬롯 마감 (status='confirmed')</div>
+        <div class="process-step">다른 고객의 후보 확인</div>
+        <div class="process-step">영향받은 고객 → 'needs_reselection'</div>
+        <div class="process-step">기록 저장 + 결과 메시지</div>
+      </div>
+
+      <h3>재선택 프로세스 (Resubmit Request)</h3>
+      <div class="process-flow">
+        <div class="process-step">고객이 'needs_reselection' 상태 확인</div>
+        <div class="process-step">새 슬롯 선택 (1~3개)</div>
+        <div class="process-step">검증 (개수, 중복, 마감)</div>
+        <div class="process-step">version++ (이전 이력 보존)</div>
+        <div class="process-step">상태 → 'received'</div>
+        <div class="process-step">성공 메시지</div>
+      </div>
+    </section>
+
+    <!-- 4. 접점 -->
+    <section>
+      <h2>🎯 서비스 접점</h2>
+
+      <h3>Front Stage (고객이 보는 부분)</h3>
+      <table>
+        <tr>
+          <th>접점</th>
+          <th>로컬 모드</th>
+          <th>Supabase 모드</th>
+        </tr>
+        <tr>
+          <td><strong>진입점</strong></td>
+          <td>localhost:5187/</td>
+          <td>/supabase</td>
+        </tr>
+        <tr>
+          <td><strong>인증</strong></td>
+          <td>역할 버튼</td>
+          <td>이메일 로그인</td>
+        </tr>
+        <tr>
+          <td><strong>슬롯 표시</strong></td>
+          <td colspan="2">SlotTable (14행 × 3열)</td>
+        </tr>
+        <tr>
+          <td><strong>신청 폼</strong></td>
+          <td>선택 목록 + 버튼</td>
+          <td>RPC 호출</td>
+        </tr>
+        <tr>
+          <td><strong>상태 조회</strong></td>
+          <td>localStorage</td>
+          <td>Supabase 쿼리</td>
+        </tr>
+      </table>
+
+      <h3>Back Stage (고객이 안 보는 부분)</h3>
+      <table>
+        <tr>
+          <th>계층</th>
+          <th>로컬 모드</th>
+          <th>Supabase 모드</th>
+        </tr>
+        <tr>
+          <td><strong>저장소</strong></td>
+          <td>localStorage (JSON)</td>
+          <td>PostgreSQL</td>
+        </tr>
+        <tr>
+          <td><strong>인증</strong></td>
+          <td>In-memory</td>
+          <td>Supabase Auth (JWT)</td>
+        </tr>
+        <tr>
+          <td><strong>비즈니스 로직</strong></td>
+          <td>operations.ts (메모리)</td>
+          <td>RPC 함수</td>
+        </tr>
+        <tr>
+          <td><strong>트랜잭션</strong></td>
+          <td>JSON 복사</td>
+          <td>DB 잠금</td>
+        </tr>
+      </table>
+    </section>
+
+    <!-- 5. 기능 목록 -->
+    <section>
+      <h2>✨ 기능</h2>
+
+      <h3>구현됨</h3>
+      <div class="feature-list">
+        <div class="feature">
+          <h4><span class="badge implemented">✓</span>42개 고정 슬롯</h4>
+          <p>14일 × 3시간대 고정값</p>
+        </div>
+        <div class="feature">
+          <h4><span class="badge implemented">✓</span>이중 모드</h4>
+          <p>로컬 (오프라인) / Supabase (온라인)</p>
+        </div>
+        <div class="feature">
+          <h4><span class="badge implemented">✓</span>역할 기반 접근</h4>
+          <p>고객 vs 어드민 분리</p>
+        </div>
+        <div class="feature">
+          <h4><span class="badge implemented">✓</span>1~3개 희망 신청</h4>
+          <p>우선순위 지정, 중복 방지</p>
+        </div>
+        <div class="feature">
+          <h4><span class="badge implemented">✓</span>수동 확정</h4>
+          <p>어드민이 일일이 확정</p>
+        </div>
+        <div class="feature">
+          <h4><span class="badge implemented">✓</span>자동 재선택 판정</h4>
+          <p>모든 희망 마감 시 자동 알림</p>
+        </div>
+      </div>
+
+      <h3>미구현 (기본 범위 밖)</h3>
+      <div class="feature-list">
+        <div class="feature out-of-scope">
+          <h4><span class="badge out-of-scope">✗</span>자동 확정</h4>
+          <p>수동 확정만 지원</p>
+        </div>
+        <div class="feature out-of-scope">
+          <h4><span class="badge out-of-scope">✗</span>대기 (Waitlist)</h4>
+          <p>우선순위 분배만 지원</p>
+        </div>
+        <div class="feature out-of-scope">
+          <h4><span class="badge out-of-scope">✗</span>알림</h4>
+          <p>이메일/SMS 미지원</p>
+        </div>
+        <div class="feature out-of-scope">
+          <h4><span class="badge out-of-scope">✗</span>취소</h4>
+          <p>신청만 지원</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 6. 라우팅 구조 -->
+    <section>
+      <h2>🔗 라우팅 구조</h2>
+      <table>
+        <tr>
+          <th>URL</th>
+          <th>설명</th>
+          <th>역할</th>
+        </tr>
+        <tr>
+          <td><strong>/</strong></td>
+          <td>로컬 모드 (역할 선택)</td>
+          <td>고객/어드민</td>
+        </tr>
+        <tr>
+          <td><strong>/supabase</strong></td>
+          <td>Supabase 로그인</td>
+          <td>로그인 전</td>
+        </tr>
+        <tr>
+          <td><strong>/supabase/signup</strong></td>
+          <td>회원가입</td>
+          <td>신규 사용자</td>
+        </tr>
+        <tr>
+          <td><strong>/supabase/customer</strong></td>
+          <td>고객 페이지</td>
+          <td>고객</td>
+        </tr>
+        <tr>
+          <td><strong>/supabase/admin</strong></td>
+          <td>어드민 페이지</td>
+          <td>어드민</td>
+        </tr>
+        <tr>
+          <td><strong>/blueprint_as_is</strong></td>
+          <td>이 문서</td>
+          <td>모두</td>
+        </tr>
+      </table>
+    </section>
+
+    <!-- 7. 데이터 모델 -->
+    <section>
+      <h2>📊 데이터 모델</h2>
+      <table>
+        <tr>
+          <th>테이블</th>
+          <th>설명</th>
+          <th>행 수 (초기)</th>
+        </tr>
+        <tr>
+          <td><strong>slots</strong></td>
+          <td>42개 고정 슬롯</td>
+          <td>42</td>
+        </tr>
+        <tr>
+          <td><strong>requests</strong></td>
+          <td>고객 신청 (접수/미확정)</td>
+          <td>0~</td>
+        </tr>
+        <tr>
+          <td><strong>candidates</strong></td>
+          <td>희망 후보 (1~3개/신청)</td>
+          <td>0~</td>
+        </tr>
+        <tr>
+          <td><strong>confirmations</strong></td>
+          <td>확정 기록</td>
+          <td>0~</td>
+        </tr>
+        <tr>
+          <td><strong>operation_logs</strong></td>
+          <td>모든 작업 기록</td>
+          <td>0~</td>
+        </tr>
+      </table>
+    </section>
+
+    <!-- Footer -->
+    <div class="footer">
+      <p>cal.dudu-works.com v1.0 | 수업용 기본 실습 앱</p>
+      <p style="font-size: 0.9em; margin-top: 10px;">42슬롯 고정 | 고객 1-3개 희망 | 어드민 수동 확정</p>
+    </div>
+  </div>
+</body>
+</html>

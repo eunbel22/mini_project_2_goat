@@ -4,13 +4,14 @@ import { signIn, signUp } from '../utils/supabase';
 interface AuthPageProps {
   onAuthSuccess: (userId: string, email: string) => void;
   onError: (error: string) => void;
+  initialMode?: 'signin' | 'signup';
 }
 
-export const AuthPage: React.FC<AuthPageProps> = ({ onAuthSuccess, onError }) => {
+export const AuthPage: React.FC<AuthPageProps> = ({ onAuthSuccess, onError, initialMode = 'signin' }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [customerId, setCustomerId] = useState('');
-  const [mode, setMode] = useState<'signin' | 'signup'>('signin');
+  const [mode, setMode] = useState<'signin' | 'signup'>(initialMode);
   const [loading, setLoading] = useState(false);
 
   const handleSignIn = async () => {
@@ -51,18 +52,26 @@ export const AuthPage: React.FC<AuthPageProps> = ({ onAuthSuccess, onError }) =>
     }
 
     setLoading(true);
-    const { data, error } = await signUp(email, password, customerId);
+    try {
+      const { data, error } = await signUp(email, password, customerId);
+      console.log('SignUp result:', { data, error });
 
-    if (error) {
-      onError(error.message);
-      setLoading(false);
-      return;
-    }
+      if (error) {
+        console.error('SignUp error:', error);
+        onError(error.message);
+        setLoading(false);
+        return;
+      }
 
-    if (data?.user) {
-      onAuthSuccess(data.user.id, data.user.email || '');
-    } else {
-      onError('가입 실패');
+      if (data?.user) {
+        console.log('SignUp success:', data.user);
+        onAuthSuccess(data.user.id, data.user.email || '');
+      } else {
+        onError('가입 실패');
+      }
+    } catch (err: any) {
+      console.error('SignUp exception:', err);
+      onError(err.message || '가입 중 오류 발생');
     }
     setLoading(false);
   };

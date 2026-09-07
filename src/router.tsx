@@ -1,6 +1,8 @@
 import { createBrowserRouter } from 'react-router-dom';
 import LocalModePage from './pages/LocalModePage';
-import SupabaseModePage from './pages/SupabaseModePage';
+import SupabaseAuthPage from './pages/SupabaseAuthPage';
+import SupabaseCustomerPage from './pages/SupabaseCustomerPage';
+import SupabaseAdminPage from './pages/SupabaseAdminPage';
 
 const router = createBrowserRouter([
   {
@@ -9,7 +11,19 @@ const router = createBrowserRouter([
   },
   {
     path: '/supabase',
-    element: <SupabaseModePage />,
+    element: <SupabaseAuthPage />,
+  },
+  {
+    path: '/supabase/signup',
+    element: <SupabaseAuthPage mode="signup" />,
+  },
+  {
+    path: '/supabase/customer',
+    element: <SupabaseCustomerPage />,
+  },
+  {
+    path: '/supabase/admin',
+    element: <SupabaseAdminPage />,
   },
 ]);
 
