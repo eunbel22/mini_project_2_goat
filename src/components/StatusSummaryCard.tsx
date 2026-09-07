@@ -6,10 +6,12 @@ interface StatusSummaryCardProps {
   request: Request;
   candidates: Candidate[];
   slots: Record<string, Slot>;
+  onRefresh?: () => void;
 }
 
-export const StatusSummaryCard: React.FC<StatusSummaryCardProps> = ({ request, candidates, slots }) => {
+export const StatusSummaryCard: React.FC<StatusSummaryCardProps> = ({ request, candidates, slots, onRefresh }) => {
   const [notifyEnabled, setNotifyEnabled] = useState<boolean>(true);
+  const [lastUpdated] = useState<string>(new Date().toLocaleTimeString());
 
   const confirmedSlot = request.confirmedSlotId ? slots[request.confirmedSlotId] : null;
 
@@ -42,19 +44,36 @@ export const StatusSummaryCard: React.FC<StatusSummaryCardProps> = ({ request, c
         </div>
       )}
 
-      {/* S6-02 · 내 신청 상태 바로보기 */}
+      {/* S6-02 · 내 신청 상태 바로보기 & S2-04 마지막 갱신 시각 */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
-        <h4 style={{ margin: 0 }}>내 신청 상태 요약 (v{request.version})</h4>
-        <span style={{
-          padding: '4px 10px',
-          borderRadius: '12px',
-          fontSize: '13px',
-          fontWeight: 'bold',
-          color: '#fff',
-          backgroundColor: request.status === 'confirmed' ? '#28a745' : request.status === 'needs_reselection' ? '#dc3545' : '#17a2b8',
-        }}>
-          {request.status === 'confirmed' ? '확정됨' : request.status === 'needs_reselection' ? '재선택 필요' : '확정 대기 중'}
-        </span>
+        <div>
+          <h4 style={{ margin: 0, display: 'inline-block' }}>내 신청 상태 요약 (v{request.version})</h4>
+          <span style={{ fontSize: '11px', color: '#777', marginLeft: '8px' }}>
+            (S2-04 조회 시각: {lastUpdated})
+          </span>
+        </div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          {onRefresh && (
+            <button
+              className="btn btn-secondary"
+              onClick={onRefresh}
+              style={{ fontSize: '11px', padding: '2px 8px' }}
+              title="최신 상태 갱신"
+            >
+              🔄 지금 다시 확인 (S2-04)
+            </button>
+          )}
+          <span style={{
+            padding: '4px 10px',
+            borderRadius: '12px',
+            fontSize: '13px',
+            fontWeight: 'bold',
+            color: '#fff',
+            backgroundColor: request.status === 'confirmed' ? '#28a745' : request.status === 'needs_reselection' ? '#dc3545' : '#17a2b8',
+          }}>
+            {request.status === 'confirmed' ? '확정됨' : request.status === 'needs_reselection' ? '재선택 필요' : '확정 대기 중'}
+          </span>
+        </div>
       </div>
 
       {/* S6-03 · 알림 수신 여부 표시 */}

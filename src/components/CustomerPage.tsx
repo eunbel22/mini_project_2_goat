@@ -97,6 +97,18 @@ export const CustomerPage: React.FC<CustomerPageProps> = ({ db, mode, userId }) 
     }
   };
 
+  const moveSlot = (index: number, direction: 'up' | 'down') => {
+    setSelectedSlots(prev => {
+      const copy = [...prev];
+      const targetIndex = direction === 'up' ? index - 1 : index + 1;
+      if (targetIndex < 0 || targetIndex >= copy.length) return prev;
+      const temp = copy[index];
+      copy[index] = copy[targetIndex];
+      copy[targetIndex] = temp;
+      return copy;
+    });
+  };
+
   const handleSlotToggle = (slotId: string) => {
     setSelectedSlots(prev => {
       if (prev.includes(slotId)) {
@@ -238,22 +250,42 @@ export const CustomerPage: React.FC<CustomerPageProps> = ({ db, mode, userId }) 
           />
 
           <div style={{ marginBottom: '20px' }}>
-            <h4>선택한 슬롯 ({selectedSlots.length}/3)</h4>
+            <h4>선택한 슬롯 ({selectedSlots.length}/3) - <span style={{ fontSize: '12px', fontWeight: 'normal', color: '#666' }}>▲/▼ 버튼으로 희망 순위 변경 (S1-06)</span></h4>
             <ul className="list">
               {selectedSlots.map((slotId, idx) => {
                 const slot = slots[slotId];
                 return (
-                  <li key={slotId}>
+                  <li key={slotId} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                     <span>
-                      {idx + 1}. {slot?.date} {TIME_SLOTS.find(t => t.label === slot?.timeLabel)?.displayLabel}
+                      <strong>{idx + 1}순위:</strong> {slot?.date} {TIME_SLOTS.find(t => t.label === slot?.timeLabel)?.displayLabel}
                     </span>
-                    <button
-                      className="btn btn-secondary"
-                      onClick={() => handleSlotToggle(slotId)}
-                      style={{ padding: '4px 8px', fontSize: '12px' }}
-                    >
-                      제거
-                    </button>
+                    <div style={{ display: 'flex', gap: '4px' }}>
+                      <button
+                        className="btn btn-secondary"
+                        onClick={() => moveSlot(idx, 'up')}
+                        disabled={idx === 0}
+                        style={{ padding: '2px 6px', fontSize: '11px' }}
+                        title="우선순위 올리기"
+                      >
+                        ▲
+                      </button>
+                      <button
+                        className="btn btn-secondary"
+                        onClick={() => moveSlot(idx, 'down')}
+                        disabled={idx === selectedSlots.length - 1}
+                        style={{ padding: '2px 6px', fontSize: '11px' }}
+                        title="우선순위 내리기"
+                      >
+                        ▼
+                      </button>
+                      <button
+                        className="btn btn-secondary"
+                        onClick={() => handleSlotToggle(slotId)}
+                        style={{ padding: '2px 6px', fontSize: '11px' }}
+                      >
+                        제거
+                      </button>
+                    </div>
                   </li>
                 );
               })}
@@ -317,11 +349,12 @@ export const CustomerPage: React.FC<CustomerPageProps> = ({ db, mode, userId }) 
       {stage === 'view' && customerRequests.length > 0 && (
         <div>
           <h3>내 신청 현황</h3>
-          {/* S6-02 상태 바로보기 요약 카드 및 S6-01 확정 알림 */}
+          {/* S6-02 상태 바로보기 요약 카드 및 S6-01 확정 알림, S2-04 상태 새로고침 */}
           <StatusSummaryCard
             request={customerRequests[customerRequests.length - 1].request}
             candidates={customerRequests[customerRequests.length - 1].candidates}
             slots={slots}
+            onRefresh={loadData}
           />
           {/* S6-08 상담 준비 메모/체크리스트 카드 */}
           <PreparationMemoCard customerId={customerId} />
