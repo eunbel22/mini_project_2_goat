@@ -13,221 +13,305 @@
 
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-      line-height: 1.6;
+      line-height: 1.4;
       color: #333;
-      background: #f5f5f5;
+      background: #f8f9fa;
+      padding: 30px 20px;
     }
 
     .container {
-      max-width: 1200px;
+      max-width: 1400px;
       margin: 0 auto;
-      padding: 40px 20px;
     }
 
     header {
+      text-align: center;
+      margin-bottom: 40px;
       background: white;
-      padding: 40px;
+      padding: 30px;
       border-radius: 8px;
-      margin-bottom: 30px;
       box-shadow: 0 2px 4px rgba(0,0,0,0.1);
     }
 
     h1 {
-      font-size: 2.5em;
+      font-size: 2.2em;
       margin-bottom: 10px;
       color: #1a1a1a;
     }
 
     .subtitle {
-      font-size: 1.1em;
+      font-size: 1em;
       color: #666;
-      margin-bottom: 15px;
     }
 
-    .tags {
+    .blueprint-container {
+      background: white;
+      padding: 40px;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      margin-bottom: 40px;
+      overflow-x: auto;
+    }
+
+    .blueprint {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+      min-width: 1000px;
+    }
+
+    /* Row styling */
+    .blueprint-row {
+      display: flex;
+      border-bottom: 1px solid #e0e0e0;
+      min-height: 80px;
+    }
+
+    .blueprint-row:last-child {
+      border-bottom: none;
+    }
+
+    .blueprint-row.evidence {
+      background: #e8f5e9;
+      font-weight: 600;
+      color: #2e7d32;
+    }
+
+    .blueprint-row.actions {
+      background: #fff9e6;
+    }
+
+    .blueprint-row.front {
+      background: #fff3e0;
+    }
+
+    .blueprint-row.line {
+      background: #f3e5f5;
+      border-top: 3px dashed #9c27b0;
+      border-bottom: 3px dashed #9c27b0;
+      min-height: 2px;
+    }
+
+    .blueprint-row.back {
+      background: #e3f2fd;
+    }
+
+    .blueprint-row.support {
+      background: #fce4ec;
+      border-top: 2px solid #c2185b;
+    }
+
+    /* Cell styling */
+    .blueprint-cell {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: 15px;
+      border-right: 1px solid #e0e0e0;
+      text-align: center;
+      font-size: 0.9em;
+      flex: 1;
+    }
+
+    .blueprint-cell:last-child {
+      border-right: none;
+    }
+
+    .blueprint-row.line .blueprint-cell {
+      border-right: 1px dashed #c2185b;
+    }
+
+    .blueprint-row.line .blueprint-cell:last-child {
+      border-right: none;
+    }
+
+    .label {
+      font-weight: 600;
+      font-size: 0.75em;
+      padding: 4px 8px;
+      background: rgba(0,0,0,0.1);
+      border-radius: 3px;
+      margin-bottom: 5px;
+    }
+
+    .element {
+      background: white;
+      border: 2px solid;
+      border-radius: 6px;
+      padding: 8px 12px;
+      font-size: 0.85em;
+      font-weight: 500;
+      margin: 3px;
+    }
+
+    .element.action {
+      border-color: #fbc02d;
+      background: #fffde7;
+      color: #f57f17;
+    }
+
+    .element.touchpoint {
+      border-color: #ff6f00;
+      background: #ffe0b2;
+      color: #e65100;
+    }
+
+    .element.process {
+      border-color: #1976d2;
+      background: #bbdefb;
+      color: #0d47a1;
+    }
+
+    .element.system {
+      border-color: #7b1fa2;
+      background: #e1bee7;
+      color: #4a148c;
+    }
+
+    .element.support {
+      border-color: #c2185b;
+      background: #f8bbd0;
+      color: #880e4f;
+    }
+
+    /* Row labels */
+    .row-label {
+      min-width: 120px;
+      font-weight: 700;
+      font-size: 0.75em;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: 10px;
+      border-right: 2px solid #999;
+      background: rgba(0,0,0,0.05);
+    }
+
+    .row-label.evidence {
+      color: #2e7d32;
+    }
+
+    .row-label.actions {
+      color: #f57f17;
+    }
+
+    .row-label.front {
+      color: #e65100;
+    }
+
+    .row-label.line {
+      color: #7b1fa2;
+      font-weight: 900;
+    }
+
+    .row-label.back {
+      color: #0d47a1;
+    }
+
+    .row-label.support {
+      color: #880e4f;
+    }
+
+    .legend {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 20px;
+      margin-top: 40px;
+      padding: 20px;
+      background: #fafafa;
+      border-radius: 8px;
+    }
+
+    .legend-item {
       display: flex;
       gap: 10px;
-      flex-wrap: wrap;
+      align-items: center;
     }
 
-    .tag {
-      background: #e3f2fd;
-      color: #1976d2;
-      padding: 6px 12px;
-      border-radius: 20px;
+    .legend-color {
+      width: 40px;
+      height: 30px;
+      border-radius: 4px;
+      flex-shrink: 0;
+    }
+
+    .legend-text {
       font-size: 0.9em;
-      font-weight: 500;
     }
 
-    section {
+    .legend-text strong {
+      display: block;
+      margin-bottom: 3px;
+    }
+
+    .section-info {
       background: white;
       padding: 30px;
-      margin-bottom: 20px;
       border-radius: 8px;
+      margin-bottom: 30px;
       box-shadow: 0 2px 4px rgba(0,0,0,0.1);
     }
 
-    section h2 {
-      font-size: 1.8em;
-      margin-bottom: 20px;
-      padding-bottom: 10px;
-      border-bottom: 3px solid #1976d2;
-      color: #1a1a1a;
-    }
-
-    section h3 {
-      font-size: 1.3em;
-      margin-top: 25px;
+    .section-info h2 {
+      font-size: 1.4em;
       margin-bottom: 15px;
-      color: #333;
-    }
-
-    .journey {
-      background: #f9f9f9;
-      padding: 20px;
-      border-radius: 5px;
-      margin: 15px 0;
-      font-family: monospace;
-      font-size: 0.95em;
-      overflow-x: auto;
-      border-left: 4px solid #1976d2;
+      color: #1a1a1a;
     }
 
     table {
       width: 100%;
       border-collapse: collapse;
       margin: 15px 0;
-      font-size: 0.95em;
     }
 
     th, td {
       border: 1px solid #ddd;
-      padding: 12px;
+      padding: 10px;
       text-align: left;
     }
 
     th {
-      background: #f0f0f0;
+      background: #f5f5f5;
       font-weight: 600;
-      color: #333;
     }
 
     tr:nth-child(even) {
       background: #fafafa;
     }
 
-    tr:hover {
-      background: #f0f7ff;
-    }
-
-    .feature-list {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 20px;
-      margin: 20px 0;
-    }
-
-    .feature {
-      padding: 15px;
-      background: #f9f9f9;
-      border-radius: 5px;
-      border-left: 4px solid #4caf50;
-    }
-
-    .feature.out-of-scope {
-      border-left-color: #f44336;
-    }
-
-    .feature h4 {
-      margin-bottom: 5px;
-      color: #333;
-    }
-
-    .feature p {
-      font-size: 0.9em;
-      color: #666;
-    }
-
-    .process-flow {
-      background: #f0f7ff;
-      padding: 20px;
-      border-radius: 5px;
-      margin: 15px 0;
-      border: 2px dashed #1976d2;
-    }
-
-    .process-step {
-      display: flex;
-      align-items: center;
-      margin: 10px 0;
-      font-size: 0.95em;
-    }
-
-    .process-step::before {
-      content: '→';
-      display: inline-block;
-      margin-right: 10px;
-      color: #1976d2;
-      font-weight: bold;
-    }
-
-    .matrix {
-      background: #f0f0f0;
-      padding: 20px;
-      border-radius: 5px;
-      margin: 20px 0;
-      font-family: monospace;
-      font-size: 0.9em;
-      overflow-x: auto;
-    }
-
     .footer {
-      background: #f5f5f5;
-      padding: 20px;
       text-align: center;
       color: #666;
       margin-top: 40px;
-      border-radius: 8px;
+      padding: 20px;
+      border-top: 1px solid #e0e0e0;
     }
 
-    .badge {
-      display: inline-block;
-      padding: 4px 8px;
-      margin-right: 5px;
-      border-radius: 3px;
-      font-size: 0.85em;
-      font-weight: 600;
-    }
-
-    .badge.implemented {
-      background: #4caf50;
-      color: white;
-    }
-
-    .badge.out-of-scope {
-      background: #f44336;
-      color: white;
-    }
-
-    @media (max-width: 768px) {
-      .feature-list {
-        grid-template-columns: 1fr;
+    @media (max-width: 1024px) {
+      .blueprint-container {
+        padding: 20px;
       }
 
-      h1 {
-        font-size: 2em;
+      .blueprint {
+        min-width: 100%;
       }
 
-      section h2 {
-        font-size: 1.4em;
+      .row-label {
+        min-width: 100px;
+        font-size: 0.7em;
       }
 
-      table {
-        font-size: 0.85em;
+      .blueprint-cell {
+        padding: 12px 8px;
+        font-size: 0.8em;
       }
 
-      th, td {
-        padding: 8px;
+      .element {
+        font-size: 0.75em;
+        padding: 6px 10px;
+        margin: 2px;
       }
     }
   </style>
@@ -236,305 +320,535 @@
   <div class="container">
     <header>
       <h1>cal.dudu Service Blueprint (As-Is)</h1>
-      <p class="subtitle">예약 시스템 기본 실습 앱</p>
-      <div class="tags">
-        <span class="tag">🎓 교육용</span>
-        <span class="tag">🔀 이중 모드</span>
-        <span class="tag">🔒 안전성</span>
-        <span class="tag">📊 감사추적</span>
-      </div>
+      <p class="subtitle">예약 시스템 기본 실습 앱 - 전문적 서비스 블루프린트</p>
     </header>
 
-    <!-- 1. 개요 -->
-    <section>
-      <h2>📋 서비스 개요</h2>
+    <!-- Main Blueprint Diagram -->
+    <div class="blueprint-container">
+      <div class="blueprint">
+
+        <!-- 1. Physical Evidence -->
+        <div class="blueprint-row evidence">
+          <div class="row-label evidence">Physical<br>Evidence</div>
+          <div class="blueprint-cell">
+            <div class="label">웹사이트</div>
+            <div class="element touchpoint">로그인 페이지</div>
+            <div class="element touchpoint">슬롯 테이블</div>
+          </div>
+          <div class="blueprint-cell">
+            <div class="label">인터페이스</div>
+            <div class="element touchpoint">신청 폼</div>
+            <div class="element touchpoint">상태 표시</div>
+          </div>
+          <div class="blueprint-cell">
+            <div class="label">확인 UI</div>
+            <div class="element touchpoint">신청 결과</div>
+            <div class="element touchpoint">재선택 알림</div>
+          </div>
+          <div class="blueprint-cell">
+            <div class="label">관리 화면</div>
+            <div class="element touchpoint">어드민 패널</div>
+            <div class="element touchpoint">확인 버튼</div>
+          </div>
+          <div class="blueprint-cell">
+            <div class="label">문서</div>
+            <div class="element touchpoint">블루프린트</div>
+            <div class="element touchpoint">가이드</div>
+          </div>
+        </div>
+
+        <!-- 2. User Actions -->
+        <div class="blueprint-row actions">
+          <div class="row-label actions">User<br>Actions</div>
+          <div class="blueprint-cell">
+            <div class="label">로그인</div>
+            <div class="element action">역할 선택</div>
+            <div class="element action">(Local)</div>
+          </div>
+          <div class="blueprint-cell">
+            <div class="label">인증</div>
+            <div class="element action">이메일/비번</div>
+            <div class="element action">가입 (Supabase)</div>
+          </div>
+          <div class="blueprint-cell">
+            <div class="label">신청</div>
+            <div class="element action">슬롯 1-3개</div>
+            <div class="element action">선택 제출</div>
+          </div>
+          <div class="blueprint-cell">
+            <div class="label">조회</div>
+            <div class="element action">신청 상태</div>
+            <div class="element action">확인 대기</div>
+          </div>
+          <div class="blueprint-cell">
+            <div class="label">재신청</div>
+            <div class="element action">슬롯 재선택</div>
+            <div class="element action">새로 제출</div>
+          </div>
+        </div>
+
+        <!-- 3. Front Stage -->
+        <div class="blueprint-row front">
+          <div class="row-label front">Front<br>Stage</div>
+          <div class="blueprint-cell">
+            <div class="label">인증 서비스</div>
+            <div class="element touchpoint">AuthPage<br>컴포넌트</div>
+            <div class="element touchpoint">로그인/가입<br>폼 표시</div>
+          </div>
+          <div class="blueprint-cell">
+            <div class="label">고객 페이지</div>
+            <div class="element touchpoint">SlotTable</div>
+            <div class="element touchpoint">신청 폼</div>
+            <div class="element touchpoint">상태 표</div>
+          </div>
+          <div class="blueprint-cell">
+            <div class="label">어드민 페이지</div>
+            <div class="element touchpoint">후보 목록</div>
+            <div class="element touchpoint">확정 선택</div>
+            <div class="element touchpoint">결과 표시</div>
+          </div>
+          <div class="blueprint-cell">
+            <div class="label">데이터 표현</div>
+            <div class="element touchpoint">요청 상태</div>
+            <div class="element touchpoint">슬롯 가용성</div>
+          </div>
+          <div class="blueprint-cell">
+            <div class="label">라우팅</div>
+            <div class="element touchpoint">/supabase</div>
+            <div class="element touchpoint">/customer</div>
+            <div class="element touchpoint">/admin</div>
+          </div>
+        </div>
+
+        <!-- 4. Interaction Line -->
+        <div class="blueprint-row line">
+          <div class="row-label line">Visible<br>Interaction<br>Line</div>
+          <div class="blueprint-cell"></div>
+          <div class="blueprint-cell"></div>
+          <div class="blueprint-cell"></div>
+          <div class="blueprint-cell"></div>
+          <div class="blueprint-cell"></div>
+        </div>
+
+        <!-- 5. Back Stage -->
+        <div class="blueprint-row back">
+          <div class="row-label back">Back<br>Stage</div>
+          <div class="blueprint-cell">
+            <div class="label">인증 처리</div>
+            <div class="element process">signIn()</div>
+            <div class="element process">signUp()</div>
+            <div class="element process">JWT 검증</div>
+          </div>
+          <div class="blueprint-cell">
+            <div class="label">데이터 로드</div>
+            <div class="element process">loadSlots()</div>
+            <div class="element process">fetchRequests()</div>
+            <div class="element process">JSON 캐싱</div>
+          </div>
+          <div class="blueprint-cell">
+            <div class="label">비즈니스 로직</div>
+            <div class="element process">submitRequest()</div>
+            <div class="element process">confirmRequest()</div>
+            <div class="element process">resubmit()</div>
+          </div>
+          <div class="blueprint-cell">
+            <div class="label">상태 판정</div>
+            <div class="element process">decideStatus()</div>
+            <div class="element process">validateSlot()</div>
+            <div class="element process">checkConflict()</div>
+          </div>
+          <div class="blueprint-cell">
+            <div class="label">DB 작업</div>
+            <div class="element process">RPC 호출</div>
+            <div class="element process">트랜잭션</div>
+            <div class="element process">Lock 관리</div>
+          </div>
+        </div>
+
+        <!-- 6. Support Processes -->
+        <div class="blueprint-row support">
+          <div class="row-label support">Support<br>Processes</div>
+          <div class="blueprint-cell">
+            <div class="label">저장소</div>
+            <div class="element support">localStorage<br>(로컬)</div>
+            <div class="element support">PostgreSQL<br>(Supabase)</div>
+          </div>
+          <div class="blueprint-cell">
+            <div class="label">감사/기록</div>
+            <div class="element support">operation_logs</div>
+            <div class="element support">타임스탬프</div>
+          </div>
+          <div class="blueprint-cell">
+            <div class="label">데이터 무결성</div>
+            <div class="element support">버전 추적</div>
+            <div class="element support">idempotency</div>
+          </div>
+          <div class="blueprint-cell">
+            <div class="label">동시성 제어</div>
+            <div class="element support">DB 제약</div>
+            <div class="element support">RLS 정책</div>
+          </div>
+          <div class="blueprint-cell">
+            <div class="label">모드 전환</div>
+            <div class="element support">로컬/Supabase</div>
+            <div class="element support">동적 라우팅</div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Legend -->
+    <div class="section-info">
+      <h2>📋 범례 (Legend)</h2>
+      <div class="legend">
+        <div class="legend-item">
+          <div class="legend-color" style="background: #e8f5e9;"></div>
+          <div class="legend-text">
+            <strong>Physical Evidence</strong>
+            고객이 만나는 물리적/디지털 증거물
+          </div>
+        </div>
+        <div class="legend-item">
+          <div class="legend-color" style="background: #fff9e6;"></div>
+          <div class="legend-text">
+            <strong>User Actions</strong>
+            고객이 취하는 행동과 의사결정
+          </div>
+        </div>
+        <div class="legend-item">
+          <div class="legend-color" style="background: #fff3e0;"></div>
+          <div class="legend-text">
+            <strong>Front Stage</strong>
+            고객이 볼 수 있는 서비스 요소
+          </div>
+        </div>
+        <div class="legend-item">
+          <div class="legend-color" style="background: #f3e5f5;"></div>
+          <div class="legend-text">
+            <strong>Interaction Line</strong>
+            고객 가시성의 경계선
+          </div>
+        </div>
+        <div class="legend-item">
+          <div class="legend-color" style="background: #e3f2fd;"></div>
+          <div class="legend-text">
+            <strong>Back Stage</strong>
+            고객이 볼 수 없는 서비스 처리
+          </div>
+        </div>
+        <div class="legend-item">
+          <div class="legend-color" style="background: #fce4ec;"></div>
+          <div class="legend-text">
+            <strong>Support Processes</strong>
+            백그라운드 지원 시스템
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Detailed Information -->
+    <div class="section-info">
+      <h2>📊 로컬 모드 (Local Mode) - 교실 데모</h2>
       <table>
         <tr>
-          <th>항목</th>
+          <th>단계</th>
+          <th>사용자 행동</th>
+          <th>Front Stage</th>
+          <th>Back Stage</th>
+          <th>결과</th>
+        </tr>
+        <tr>
+          <td><strong>1. 시작</strong></td>
+          <td>페이지 접속 (/)</td>
+          <td>역할 선택 버튼<br>(고객/어드민)</td>
+          <td>localStorage 읽기<br>초기 상태 로드</td>
+          <td>메인 페이지 렌더링</td>
+        </tr>
+        <tr>
+          <td><strong>2. 조회</strong></td>
+          <td>슬롯 확인</td>
+          <td>SlotTable 표시<br>14행 × 3열</td>
+          <td>state에서 조회<br>42개 슬롯 반환</td>
+          <td>가용 슬롯 표시</td>
+        </tr>
+        <tr>
+          <td><strong>3. 신청</strong></td>
+          <td>1-3개 선택<br>제출 버튼</td>
+          <td>선택 폼<br>체크박스</td>
+          <td>submitRequest() 실행<br>검증 (개수, 중복)</td>
+          <td>localStorage 저장<br>성공 메시지</td>
+        </tr>
+        <tr>
+          <td><strong>4. 확정</strong></td>
+          <td>어드민이 선택<br>확정 버튼</td>
+          <td>확정 버튼<br>결과 표시</td>
+          <td>confirmRequest() 실행<br>슬롯 마감<br>영향도 처리</td>
+          <td>슬롯 locked<br>영향받은 고객<br>needs_reselection</td>
+        </tr>
+        <tr>
+          <td><strong>5. 재신청</strong></td>
+          <td>알림 확인<br>새 슬롯 선택</td>
+          <td>재신청 폼<br>신청 버튼</td>
+          <td>resubmitRequest() 실행<br>version++<br>새 후보 저장</td>
+          <td>상태 → received<br>version 2 이상</td>
+        </tr>
+      </table>
+    </div>
+
+    <div class="section-info">
+      <h2>🔄 Supabase 모드 (Production Mode) - 실제 배포</h2>
+      <table>
+        <tr>
+          <th>단계</th>
+          <th>사용자 행동</th>
+          <th>Front Stage</th>
+          <th>Back Stage (RPC)</th>
+          <th>결과</th>
+        </tr>
+        <tr>
+          <td><strong>1. 인증</strong></td>
+          <td>회원가입<br>/supabase/signup</td>
+          <td>이메일 입력<br>비번 입력<br>가입 버튼</td>
+          <td>signUp() 호출<br>Supabase Auth</td>
+          <td>계정 생성<br>JWT 발급</td>
+        </tr>
+        <tr>
+          <td><strong>2. 로그인</strong></td>
+          <td>이메일/비번 입력<br>로그인 버튼<br>/supabase</td>
+          <td>로그인 폼</td>
+          <td>signIn() 호출<br>JWT 검증<br>app_metadata 확인</td>
+          <td>세션 저장<br>권한 판정</td>
+        </tr>
+        <tr>
+          <td><strong>3. 권한 분기</strong></td>
+          <td>인증 완료 후</td>
+          <td>로딩 중...</td>
+          <td>getAdminStatus() 호출<br>app_metadata.role 확인<br>admin vs customer</td>
+          <td>/customer 또는<br>/admin 라우팅</td>
+        </tr>
+        <tr>
+          <td><strong>4. 데이터</strong></td>
+          <td>페이지 로드</td>
+          <td>로딩 스피너</td>
+          <td>RPC: fetch_slots()<br>RPC: fetch_requests()<br>RPC: fetch_candidates()</td>
+          <td>Supabase DB에서<br>데이터 로드</td>
+        </tr>
+        <tr>
+          <td><strong>5. 제출</strong></td>
+          <td>슬롯 선택<br>제출 버튼</td>
+          <td>신청 폼</td>
+          <td>RPC: submit_request()<br>- 트랜잭션 시작<br>- 검증<br>- insert requests<br>- insert candidates<br>- operation_log 기록</td>
+          <td>DB에 저장됨<br>성공 알림<br>상태 → received</td>
+        </tr>
+        <tr>
+          <td><strong>6. 확정</strong></td>
+          <td>어드민 확정<br>확정 버튼</td>
+          <td>후보 목록<br>확정 버튼</td>
+          <td>RPC: confirm_request()<br>- 트랜잭션 시작<br>- 슬롯 업데이트<br>- 영향도 조사<br>- 자동 needs_reselection<br>- commitments 기록</td>
+          <td>DB 즉시 반영<br>다른 고객<br>needs_reselection</td>
+        </tr>
+        <tr>
+          <td><strong>7. 재신청</strong></td>
+          <td>재신청 버튼</td>
+          <td>새 슬롯 선택</td>
+          <td>RPC: resubmit_request()<br>- 상태 확인<br>- version++<br>- 새 후보 저장</td>
+          <td>상태 → received<br>version 2+</td>
+        </tr>
+      </table>
+    </div>
+
+    <div class="section-info">
+      <h2>🔀 핵심 프로세스 상세</h2>
+      <table>
+        <tr>
+          <th>프로세스</th>
+          <th>입력</th>
+          <th>검증</th>
+          <th>처리</th>
+          <th>출력</th>
+        </tr>
+        <tr>
+          <td><strong>Submit Request<br>(신청)</strong></td>
+          <td>customer_id<br>slot_ids (1-3)</td>
+          <td>✓ 개수 1-3<br>✓ 중복 없음<br>✓ 마감 안 됨<br>✓ 요청 없음</td>
+          <td>1. createRequest()<br>2. addCandidates()<br>3. priority 저장<br>4. log 기록</td>
+          <td>requests 저장<br>candidates 저장<br>상태 = received<br>operation_id</td>
+        </tr>
+        <tr>
+          <td><strong>Confirm Request<br>(확정)</strong></td>
+          <td>request_id<br>selected_slot_id<br>admin_id</td>
+          <td>✓ request 존재<br>✓ 상태 = received<br>✓ slot 가용<br>✓ candidate 포함</td>
+          <td>1. updateSlot()<br>2. status → confirmed<br>3. 영향도 조사<br>4. 자동 needs_reselection<br>5. confirmations 기록</td>
+          <td>slots locked<br>요청 confirmed<br>영향받은 고객<br>needs_reselection<br>operation_id</td>
+        </tr>
+        <tr>
+          <td><strong>Resubmit Request<br>(재신청)</strong></td>
+          <td>request_id<br>new_slot_ids<br>customer_id</td>
+          <td>✓ request 존재<br>✓ 상태 = needs_reselection<br>✓ 개수 1-3<br>✓ 중복 없음</td>
+          <td>1. version++<br>2. candidates 초기화<br>3. addCandidates()<br>4. status → received<br>5. log 기록</td>
+          <td>version >= 2<br>새 candidates<br>상태 = received<br>operation_id</td>
+        </tr>
+        <tr>
+          <td><strong>Status Decision<br>(상태 판정)</strong></td>
+          <td>request_id</td>
+          <td>✓ request 존재</td>
+          <td>decideRequestStatus()<br>- confirmed? YES<br>- all candidates locked?<br>- YES: needs_reselection</td>
+          <td>current<br>OR<br>confirmed<br>OR<br>needs_reselection</td>
+        </tr>
+      </table>
+    </div>
+
+    <div class="section-info">
+      <h2>🗂️ 라우팅 구조 (Routing Architecture)</h2>
+      <table>
+        <tr>
+          <th>경로</th>
+          <th>컴포넌트</th>
+          <th>인증</th>
           <th>설명</th>
+          <th>사용 사례</th>
         </tr>
         <tr>
-          <td><strong>서비스명</strong></td>
-          <td>cal.dudu-works.com v1.0</td>
+          <td><strong>/</strong></td>
+          <td>LocalModePage</td>
+          <td>역할 선택</td>
+          <td>고객/어드민 교실 데모</td>
+          <td>수업 데모, 오프라인</td>
         </tr>
         <tr>
-          <td><strong>예약 기간</strong></td>
-          <td>2026-09-09 ~ 2026-09-22 (14일)</td>
+          <td><strong>/supabase</strong></td>
+          <td>SupabaseAuthPage</td>
+          <td>로그인</td>
+          <td>이메일/비번 인증</td>
+          <td>신규 사용자</td>
         </tr>
         <tr>
-          <td><strong>슬롯 구성</strong></td>
-          <td>42개 고정 (14일 × 3시간대: 09:00, 13:00, 18:00)</td>
+          <td><strong>/supabase/signup</strong></td>
+          <td>SupabaseAuthPage</td>
+          <td>가입</td>
+          <td>신규 계정 생성</td>
+          <td>회원가입</td>
         </tr>
         <tr>
-          <td><strong>모드</strong></td>
-          <td>로컬 (Demo) / Supabase (Production)</td>
-        </tr>
-      </table>
-    </section>
-
-    <!-- 2. 고객 여정 -->
-    <section>
-      <h2>🚶 고객 여정</h2>
-
-      <h3>로컬 모드 (Classroom Demo)</h3>
-      <div class="journey">
-[입장] → [역할 선택] → [슬롯 조회] → [희망 신청] → [확인 제출]<br>
-   ↓                                            ↓<br>
-고객/어드민                              localStorage 저장<br>
-   ↓<br>
-[내 신청 조회] → [상태 확인] → [재선택 필요 시 재신청]
-      </div>
-
-      <h3>Supabase 모드 (Production)</h3>
-      <div class="journey">
-[회원가입/로그인] → [Auth 인증] → [역할 판정] → [슬롯 조회]<br>
-   ↓                           ↓<br>
-이메일/비밀번호        admin/customer<br>
-   ↓<br>
-[희망 신청] → [RPC 호출] → [Supabase DB 저장]<br>
-   ↓<br>
-[내 신청 조회] → [상태 확인] → [재선택 필요 시 재신청]
-      </div>
-    </section>
-
-    <!-- 3. 핵심 프로세스 -->
-    <section>
-      <h2>⚙️ 핵심 프로세스</h2>
-
-      <h3>신청 프로세스 (Submit Request)</h3>
-      <div class="process-flow">
-        <div class="process-step">고객 선택 (1~3개)</div>
-        <div class="process-step">검증 (개수, 중복, 마감 여부)</div>
-        <div class="process-step">로컬: createRequest() / Supabase: RPC</div>
-        <div class="process-step">저장 (localStorage / DB)</div>
-        <div class="process-step">후보 저장 (version=1, priority)</div>
-        <div class="process-step">성공 메시지 + 상태 갱신</div>
-      </div>
-
-      <h3>확정 프로세스 (Confirm Request)</h3>
-      <div class="process-flow">
-        <div class="process-step">어드민이 고객의 희망 슬롯 선택</div>
-        <div class="process-step">검증 (요청 존재, 유효성)</div>
-        <div class="process-step">슬롯 마감 (status='confirmed')</div>
-        <div class="process-step">다른 고객의 후보 확인</div>
-        <div class="process-step">영향받은 고객 → 'needs_reselection'</div>
-        <div class="process-step">기록 저장 + 결과 메시지</div>
-      </div>
-
-      <h3>재선택 프로세스 (Resubmit Request)</h3>
-      <div class="process-flow">
-        <div class="process-step">고객이 'needs_reselection' 상태 확인</div>
-        <div class="process-step">새 슬롯 선택 (1~3개)</div>
-        <div class="process-step">검증 (개수, 중복, 마감)</div>
-        <div class="process-step">version++ (이전 이력 보존)</div>
-        <div class="process-step">상태 → 'received'</div>
-        <div class="process-step">성공 메시지</div>
-      </div>
-    </section>
-
-    <!-- 4. 접점 -->
-    <section>
-      <h2>🎯 서비스 접점</h2>
-
-      <h3>Front Stage (고객이 보는 부분)</h3>
-      <table>
-        <tr>
-          <th>접점</th>
-          <th>로컬 모드</th>
-          <th>Supabase 모드</th>
+          <td><strong>/supabase/customer</strong></td>
+          <td>SupabaseCustomerPage</td>
+          <td>고객 권한</td>
+          <td>고객 신청/조회</td>
+          <td>고객이 로그인 후</td>
         </tr>
         <tr>
-          <td><strong>진입점</strong></td>
-          <td>localhost:5187/</td>
-          <td>/supabase</td>
+          <td><strong>/supabase/admin</strong></td>
+          <td>SupabaseAdminPage</td>
+          <td>어드민 권한</td>
+          <td>어드민 확정 업무</td>
+          <td>어드민이 로그인 후</td>
         </tr>
         <tr>
-          <td><strong>인증</strong></td>
-          <td>역할 버튼</td>
-          <td>이메일 로그인</td>
-        </tr>
-        <tr>
-          <td><strong>슬롯 표시</strong></td>
-          <td colspan="2">SlotTable (14행 × 3열)</td>
-        </tr>
-        <tr>
-          <td><strong>신청 폼</strong></td>
-          <td>선택 목록 + 버튼</td>
-          <td>RPC 호출</td>
-        </tr>
-        <tr>
-          <td><strong>상태 조회</strong></td>
-          <td>localStorage</td>
-          <td>Supabase 쿼리</td>
+          <td><strong>/blueprint_as_is.html</strong></td>
+          <td>정적 HTML</td>
+          <td>없음</td>
+          <td>서비스 블루프린트 문서</td>
+          <td>서비스 이해</td>
         </tr>
       </table>
+    </div>
 
-      <h3>Back Stage (고객이 안 보는 부분)</h3>
+    <div class="section-info">
+      <h2>💾 데이터 모델 (Supabase PostgreSQL)</h2>
       <table>
         <tr>
-          <th>계층</th>
+          <th>테이블</th>
+          <th>주요 컬럼</th>
+          <th>설명</th>
+          <th>RLS 정책</th>
+          <th>특징</th>
+        </tr>
+        <tr>
+          <td><strong>slots</strong></td>
+          <td>id, date, time, status<br>confirmed_user_id</td>
+          <td>42개 고정 슬롯<br>(14일 × 3시간대)</td>
+          <td>모두 읽기 가능<br>서버만 쓰기</td>
+          <td>변경 불가<br>읽기 빠름</td>
+        </tr>
+        <tr>
+          <td><strong>requests</strong></td>
+          <td>id, customer_id, status<br>version, created_at</td>
+          <td>고객 신청 기록<br>상태 추적</td>
+          <td>본인만 읽기<br>서버만 쓰기</td>
+          <td>버전 관리<br>타임스탬프</td>
+        </tr>
+        <tr>
+          <td><strong>candidates</strong></td>
+          <td>id, request_id<br>slot_id, priority</td>
+          <td>희망 슬롯<br>(1-3개/신청)</td>
+          <td>본인 신청만<br>서버만 쓰기</td>
+          <td>우선순위<br>버전별 저장</td>
+        </tr>
+        <tr>
+          <td><strong>confirmations</strong></td>
+          <td>id, request_id<br>slot_id, admin_id<br>created_at</td>
+          <td>어드민 확정 기록<br>감시 증거</td>
+          <td>어드민만 쓰기<br>모두 읽기</td>
+          <td>타임스탬프<br>감시추적</td>
+        </tr>
+        <tr>
+          <td><strong>operation_logs</strong></td>
+          <td>id, operation_id<br>type, data<br>created_at</td>
+          <td>모든 작업 기록<br>중복 방지</td>
+          <td>서버만 쓰기<br>모두 읽기</td>
+          <td>idempotency<br>감사 증거</td>
+        </tr>
+      </table>
+    </div>
+
+    <div class="section-info">
+      <h2>🎯 주요 특징</h2>
+      <table>
+        <tr>
+          <th>특징</th>
           <th>로컬 모드</th>
           <th>Supabase 모드</th>
         </tr>
         <tr>
           <td><strong>저장소</strong></td>
           <td>localStorage (JSON)</td>
-          <td>PostgreSQL</td>
+          <td>PostgreSQL (DB)</td>
         </tr>
         <tr>
           <td><strong>인증</strong></td>
-          <td>In-memory</td>
+          <td>역할 버튼</td>
           <td>Supabase Auth (JWT)</td>
         </tr>
         <tr>
-          <td><strong>비즈니스 로직</strong></td>
-          <td>operations.ts (메모리)</td>
-          <td>RPC 함수</td>
+          <td><strong>권한</strong></td>
+          <td>수동 선택</td>
+          <td>app_metadata.role</td>
         </tr>
         <tr>
-          <td><strong>트랜잭션</strong></td>
-          <td>JSON 복사</td>
-          <td>DB 잠금</td>
+          <td><strong>동시성</strong></td>
+          <td>없음</td>
+          <td>DB Lock + RLS</td>
+        </tr>
+        <tr>
+          <td><strong>성능</strong></td>
+          <td>빠름 (메모리)</td>
+          <td>안정적 (DB)</td>
+        </tr>
+        <tr>
+          <td><strong>사용 처</strong></td>
+          <td>교실 수업</td>
+          <td>프로덕션 배포</td>
         </tr>
       </table>
-    </section>
+    </div>
 
-    <!-- 5. 기능 목록 -->
-    <section>
-      <h2>✨ 기능</h2>
-
-      <h3>구현됨</h3>
-      <div class="feature-list">
-        <div class="feature">
-          <h4><span class="badge implemented">✓</span>42개 고정 슬롯</h4>
-          <p>14일 × 3시간대 고정값</p>
-        </div>
-        <div class="feature">
-          <h4><span class="badge implemented">✓</span>이중 모드</h4>
-          <p>로컬 (오프라인) / Supabase (온라인)</p>
-        </div>
-        <div class="feature">
-          <h4><span class="badge implemented">✓</span>역할 기반 접근</h4>
-          <p>고객 vs 어드민 분리</p>
-        </div>
-        <div class="feature">
-          <h4><span class="badge implemented">✓</span>1~3개 희망 신청</h4>
-          <p>우선순위 지정, 중복 방지</p>
-        </div>
-        <div class="feature">
-          <h4><span class="badge implemented">✓</span>수동 확정</h4>
-          <p>어드민이 일일이 확정</p>
-        </div>
-        <div class="feature">
-          <h4><span class="badge implemented">✓</span>자동 재선택 판정</h4>
-          <p>모든 희망 마감 시 자동 알림</p>
-        </div>
-      </div>
-
-      <h3>미구현 (기본 범위 밖)</h3>
-      <div class="feature-list">
-        <div class="feature out-of-scope">
-          <h4><span class="badge out-of-scope">✗</span>자동 확정</h4>
-          <p>수동 확정만 지원</p>
-        </div>
-        <div class="feature out-of-scope">
-          <h4><span class="badge out-of-scope">✗</span>대기 (Waitlist)</h4>
-          <p>우선순위 분배만 지원</p>
-        </div>
-        <div class="feature out-of-scope">
-          <h4><span class="badge out-of-scope">✗</span>알림</h4>
-          <p>이메일/SMS 미지원</p>
-        </div>
-        <div class="feature out-of-scope">
-          <h4><span class="badge out-of-scope">✗</span>취소</h4>
-          <p>신청만 지원</p>
-        </div>
-      </div>
-    </section>
-
-    <!-- 6. 라우팅 구조 -->
-    <section>
-      <h2>🔗 라우팅 구조</h2>
-      <table>
-        <tr>
-          <th>URL</th>
-          <th>설명</th>
-          <th>역할</th>
-        </tr>
-        <tr>
-          <td><strong>/</strong></td>
-          <td>로컬 모드 (역할 선택)</td>
-          <td>고객/어드민</td>
-        </tr>
-        <tr>
-          <td><strong>/supabase</strong></td>
-          <td>Supabase 로그인</td>
-          <td>로그인 전</td>
-        </tr>
-        <tr>
-          <td><strong>/supabase/signup</strong></td>
-          <td>회원가입</td>
-          <td>신규 사용자</td>
-        </tr>
-        <tr>
-          <td><strong>/supabase/customer</strong></td>
-          <td>고객 페이지</td>
-          <td>고객</td>
-        </tr>
-        <tr>
-          <td><strong>/supabase/admin</strong></td>
-          <td>어드민 페이지</td>
-          <td>어드민</td>
-        </tr>
-        <tr>
-          <td><strong>/blueprint_as_is</strong></td>
-          <td>이 문서</td>
-          <td>모두</td>
-        </tr>
-      </table>
-    </section>
-
-    <!-- 7. 데이터 모델 -->
-    <section>
-      <h2>📊 데이터 모델</h2>
-      <table>
-        <tr>
-          <th>테이블</th>
-          <th>설명</th>
-          <th>행 수 (초기)</th>
-        </tr>
-        <tr>
-          <td><strong>slots</strong></td>
-          <td>42개 고정 슬롯</td>
-          <td>42</td>
-        </tr>
-        <tr>
-          <td><strong>requests</strong></td>
-          <td>고객 신청 (접수/미확정)</td>
-          <td>0~</td>
-        </tr>
-        <tr>
-          <td><strong>candidates</strong></td>
-          <td>희망 후보 (1~3개/신청)</td>
-          <td>0~</td>
-        </tr>
-        <tr>
-          <td><strong>confirmations</strong></td>
-          <td>확정 기록</td>
-          <td>0~</td>
-        </tr>
-        <tr>
-          <td><strong>operation_logs</strong></td>
-          <td>모든 작업 기록</td>
-          <td>0~</td>
-        </tr>
-      </table>
-    </section>
-
-    <!-- Footer -->
     <div class="footer">
-      <p>cal.dudu-works.com v1.0 | 수업용 기본 실습 앱</p>
-      <p style="font-size: 0.9em; margin-top: 10px;">42슬롯 고정 | 고객 1-3개 희망 | 어드민 수동 확정</p>
+      <p><strong>cal.dudu-works.com v1.0</strong> - 수업용 기본 실습 앱</p>
+      <p>42개 고정 슬롯 (14일 × 3시간대) | 고객 1-3개 희망 신청 | 어드민 수동 확정 | 자동 재선택 판정</p>
+      <p style="font-size: 0.85em; margin-top: 15px; color: #999;">
+        로컬 모드: 교실 데모 | Supabase 모드: 프로덕션 시스템
+      </p>
     </div>
   </div>
 </body>
