@@ -123,13 +123,22 @@ const App: React.FC = () => {
           <div style={{ display: 'flex', gap: '10px', alignItems: 'center', marginLeft: '20px' }}>
             <span className={`mode-badge ${mode}`}>{mode === 'local' ? '로컬 모드' : 'Supabase 모드'}</span>
             {mode === 'local' && (
-              <button
-                className="btn btn-secondary"
-                onClick={handleResetData}
-                style={{ padding: '6px 12px', fontSize: '12px' }}
-              >
-                데이터 초기화
-              </button>
+              <>
+                <button
+                  className="btn btn-secondary"
+                  onClick={handleResetData}
+                  style={{ padding: '6px 12px', fontSize: '12px' }}
+                >
+                  데이터 초기화
+                </button>
+                <button
+                  className="btn btn-primary"
+                  onClick={() => setMode('supabase')}
+                  style={{ padding: '6px 12px', fontSize: '12px', backgroundColor: '#28a745' }}
+                >
+                  Supabase 로그인
+                </button>
+              </>
             )}
             {mode === 'supabase' && (
               <button
