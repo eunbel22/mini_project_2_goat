@@ -5,6 +5,7 @@ import { OperationManager } from '../utils/operations';
 import { DatabaseManager } from '../utils/database';
 import { decideRequestStatus } from '../utils/decide';
 import { TIME_SLOTS } from '../utils/constants';
+import { loadSlotsFromSupabase, loadCustomerDataFromSupabase, submitToSupabase, resubmitToSupabase } from '../utils/supabaseData';
 
 interface CustomerPageProps {
   db: DatabaseManager;
@@ -12,9 +13,8 @@ interface CustomerPageProps {
   userId?: string;
 }
 
-export const CustomerPage: React.FC<CustomerPageProps> = ({ db }) => {
-  // mode와 userId는 향후 Supabase 모드에서 사용
-  const [customerId, setCustomerId] = useState<string>('C01');
+export const CustomerPage: React.FC<CustomerPageProps> = ({ db, mode, userId }) => {
+  const [customerId, setCustomerId] = useState<string>(userId || 'C01');
   const [stage, setStage] = useState<'select' | 'confirm' | 'view' | 'reselect'>('select');
   const [selectedSlots, setSelectedSlots] = useState<string[]>([]);
   const [slots, setSlots] = useState<Record<string, Slot>>({});
@@ -32,26 +32,65 @@ export const CustomerPage: React.FC<CustomerPageProps> = ({ db }) => {
     loadData();
   }, [customerId]);
 
-  const loadData = () => {
-    const state = db.getState();
-    setSlots(state.slots);
-    const status = om.getCustomerStatus(customerId);
-    setCustomerRequests(status);
+  const loadData = async () => {
     setError('');
     setSuccess('');
 
-    // 첫 로드인지 확인
-    if (status.length === 0) {
-      setStage('select');
-      setSelectedSlots([]);
+    if (mode === 'supabase') {
+      try {
+        // Supabase에서 데이터 로드
+        const slotsData = await loadSlotsFromSupabase();
+        setSlots(slotsData);
+
+        const { requests, candidates } = await loadCustomerDataFromSupabase(customerId);
+
+        // 요청 상태 계산
+        const status = requests.map(request => {
+          const requestCandidates = candidates.filter(c => c.requestId === request.id);
+          const decision = decideRequestStatus(request, requestCandidates, slotsData);
+          return { request, candidates: requestCandidates, decision };
+        });
+
+        setCustomerRequests(status);
+
+        // 첫 로드인지 확인
+        if (status.length === 0) {
+          setStage('select');
+          setSelectedSlots([]);
+        } else {
+          const latest = status[status.length - 1];
+          if (latest.request.status === 'needs_reselection') {
+            setStage('reselect');
+          } else if (latest.request.status === 'confirmed') {
+            setStage('view');
+          } else {
+            setStage('view');
+          }
+        }
+      } catch (err) {
+        console.error('Failed to load Supabase data:', err);
+        setError('데이터 로드 실패');
+      }
     } else {
-      const latest = status[status.length - 1];
-      if (latest.request.status === 'needs_reselection') {
-        setStage('reselect');
-      } else if (latest.request.status === 'confirmed') {
-        setStage('view');
+      // 로컬 모드
+      const state = db.getState();
+      setSlots(state.slots);
+      const status = om.getCustomerStatus(customerId);
+      setCustomerRequests(status);
+
+      // 첫 로드인지 확인
+      if (status.length === 0) {
+        setStage('select');
+        setSelectedSlots([]);
       } else {
-        setStage('view');
+        const latest = status[status.length - 1];
+        if (latest.request.status === 'needs_reselection') {
+          setStage('reselect');
+        } else if (latest.request.status === 'confirmed') {
+          setStage('view');
+        } else {
+          setStage('view');
+        }
       }
     }
   };
@@ -79,8 +118,13 @@ export const CustomerPage: React.FC<CustomerPageProps> = ({ db }) => {
     setSuccess('');
 
     try {
-      const operationId = `submit-${customerId}-${Date.now()}`;
-      const result = await om.submitRequest(customerId, selectedSlots, operationId);
+      let result;
+      if (mode === 'supabase') {
+        result = await submitToSupabase(customerId, selectedSlots);
+      } else {
+        const operationId = `submit-${customerId}-${Date.now()}`;
+        result = await om.submitRequest(customerId, selectedSlots, operationId);
+      }
 
       if (result.success) {
         setSuccess('신청이 완료되었습니다!');
@@ -109,13 +153,19 @@ export const CustomerPage: React.FC<CustomerPageProps> = ({ db }) => {
 
     try {
       const latest = customerRequests[customerRequests.length - 1];
-      const operationId = `reselect-${latest.request.id}-${Date.now()}`;
-      const result = await om.resubmitRequest(
-        customerId,
-        latest.request.id,
-        selectedSlots,
-        operationId
-      );
+      let result;
+
+      if (mode === 'supabase') {
+        result = await resubmitToSupabase(customerId, latest.request.id, selectedSlots);
+      } else {
+        const operationId = `reselect-${latest.request.id}-${Date.now()}`;
+        result = await om.resubmitRequest(
+          customerId,
+          latest.request.id,
+          selectedSlots,
+          operationId
+        );
+      }
 
       if (result.success) {
         setSuccess('재선택이 완료되었습니다!');
