@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import type { Request, Candidate, Slot } from '../types';
 import { TIME_SLOTS } from '../utils/constants';
+import { saveNotificationPreference } from '../utils/supabaseData';
 
 interface StatusSummaryCardProps {
   request: Request;
@@ -9,6 +10,8 @@ interface StatusSummaryCardProps {
   onRefresh?: () => void;
   statusChanged?: boolean;
   previousStatus?: string;
+  mode?: 'local' | 'supabase';
+  customerId?: string;
 }
 
 export const StatusSummaryCard: React.FC<StatusSummaryCardProps> = ({
@@ -17,11 +20,26 @@ export const StatusSummaryCard: React.FC<StatusSummaryCardProps> = ({
   slots,
   onRefresh,
   statusChanged = false,
-  previousStatus
+  previousStatus,
+  mode = 'local',
+  customerId = 'C01'
 }) => {
   const [notifyEnabled, setNotifyEnabled] = useState<boolean>(true);
   const [lastUpdated, setLastUpdated] = useState<string>(new Date().toLocaleTimeString());
   const [showStatusChangeAlert, setShowStatusChangeAlert] = useState<boolean>(statusChanged);
+
+  // S6-03 · 알림 수신 여부 변경 시 DB에 저장
+  const handleNotifyChange = async (enabled: boolean) => {
+    setNotifyEnabled(enabled);
+
+    if (mode === 'supabase') {
+      const result = await saveNotificationPreference(customerId, enabled);
+      if (!result.success) {
+        console.error('Failed to save notification preference:', result.error);
+        // 실패해도 로컬 상태는 유지
+      }
+    }
+  };
 
   const confirmedSlot = request.confirmedSlotId ? slots[request.confirmedSlotId] : null;
 
@@ -129,10 +147,11 @@ export const StatusSummaryCard: React.FC<StatusSummaryCardProps> = ({
           <input
             type="checkbox"
             checked={notifyEnabled}
-            onChange={e => setNotifyEnabled(e.target.checked)}
+            onChange={e => handleNotifyChange(e.target.checked)}
           />
           {notifyEnabled ? '알림 수신 켜짐' : '알림 수신 꺼짐'}
         </label>
+        {mode === 'supabase' && <span style={{ fontSize: '10px', color: '#999' }}>(자동 저장됨)</span>}
       </div>
 
       {/* S6-10 · 아직 미확정이라는 일정 메모 */}

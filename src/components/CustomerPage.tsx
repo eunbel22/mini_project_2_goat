@@ -453,6 +453,8 @@ export const CustomerPage: React.FC<CustomerPageProps> = ({ db, mode, userId }) 
             onRefresh={loadData}
             statusChanged={statusChanged}
             previousStatus={previousStatus}
+            mode={mode}
+            customerId={customerId}
           />
           {/* S6-08 상담 준비 메모/체크리스트 카드 */}
           <PreparationMemoCard customerId={customerId} />
@@ -523,14 +525,62 @@ export const CustomerPage: React.FC<CustomerPageProps> = ({ db, mode, userId }) 
       )}
 
       {stage === 'reselect' && customerRequests.length > 0 && (() => {
+        const latest = customerRequests[customerRequests.length - 1];
         // S3-05 · 남은 열린 슬롯 계산
         const openSlots = Object.values(slots).filter(s => s.status === 'available');
         // S3-06 · 기한 전 후보 개수 (기한이 있으면 계산, 없으면 전체)
         const slotsBeforeDeadline = openSlots.length;
 
+        // S3-01 · 두 후보의 마감 내역 계산
+        const closedCandidates = latest.candidates.filter(c => slots[c.slotId]?.status === 'confirmed');
+
+        // S3-10 · 재선택 문의 내용 만들기
+        const inquiryText = `신청 #${latest.request.id.substring(0, 8)} - 마감된 슬롯: ${closedCandidates.map((c, i) => `${i + 1}순위: ${slots[c.slotId]?.date} ${TIME_SLOTS.find(t => t.label === slots[c.slotId]?.timeLabel)?.displayLabel}`).join(', ')}`;
+
         return (
           <div>
             <h3>슬롯 재선택</h3>
+
+            {/* S3-01 · 두 후보의 마감 내역 */}
+            {closedCandidates.length > 0 && (
+              <div style={{
+                padding: '12px',
+                backgroundColor: '#f8d7da',
+                border: '1px solid #f5c6cb',
+                borderRadius: '4px',
+                marginBottom: '16px',
+                fontSize: '13px',
+                color: '#721c24',
+              }}>
+                <strong style={{ display: 'block', marginBottom: '8px' }}>🔒 마감된 후보 (S3-01)</strong>
+                <ul style={{ margin: '0 0 0 18px', paddingLeft: 0 }}>
+                  {closedCandidates.map((c) => (
+                    <li key={c.id}>
+                      {c.priority}순위: {slots[c.slotId]?.date} {TIME_SLOTS.find(t => t.label === slots[c.slotId]?.timeLabel)?.displayLabel}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+
+            {/* S3-02 · 내 신청과 확정의 차이 설명 */}
+            {closedCandidates.length > 0 && (
+              <div style={{
+                padding: '12px',
+                backgroundColor: '#fff3cd',
+                border: '1px solid #ffeeba',
+                borderRadius: '4px',
+                marginBottom: '16px',
+                fontSize: '13px',
+                color: '#856404',
+              }}>
+                <strong>💡 마감 이유 (S3-02)</strong>
+                <br />
+                신청 당시에는 열려 있었지만, 다른 고객이 먼저 확정하면서 마감되었습니다.
+                <br />
+                이는 자연스러운 과정이며, 아래에서 새로운 슬롯을 선택해주세요.
+              </div>
+            )}
 
             {/* S3-03 · 입력 실수 아님 안내 */}
             <div style={{
@@ -620,6 +670,46 @@ export const CustomerPage: React.FC<CustomerPageProps> = ({ db, mode, userId }) 
                 })}
               </ul>
             </div>
+
+            {/* S3-10 · 재선택 문의 내용 만들기 */}
+            {closedCandidates.length > 0 && (
+              <div style={{
+                padding: '12px',
+                backgroundColor: '#e7f3ff',
+                border: '1px solid #b3d9ff',
+                borderRadius: '4px',
+                marginBottom: '16px',
+              }}>
+                <label style={{ fontSize: '12px', fontWeight: 'bold', display: 'block', marginBottom: '6px', color: '#004085' }}>
+                  📧 문의 초안 (S3-10) - 필요시 복사해서 사용하세요
+                </label>
+                <textarea
+                  readOnly
+                  value={inquiryText}
+                  style={{
+                    width: '100%',
+                    padding: '8px',
+                    fontSize: '12px',
+                    fontFamily: 'monospace',
+                    borderRadius: '4px',
+                    border: '1px solid #ccc',
+                    backgroundColor: '#f8f9fa',
+                    boxSizing: 'border-box',
+                    height: '60px',
+                  }}
+                />
+                <button
+                  className="btn btn-secondary"
+                  onClick={() => {
+                    navigator.clipboard.writeText(inquiryText);
+                    alert('문의 초안이 클립보드에 복사되었습니다!');
+                  }}
+                  style={{ marginTop: '6px', fontSize: '12px', padding: '4px 8px' }}
+                >
+                  📋 복사
+                </button>
+              </div>
+            )}
 
             <div style={{ display: 'flex', gap: '10px' }}>
               <button

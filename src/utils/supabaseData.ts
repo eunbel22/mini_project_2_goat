@@ -215,3 +215,52 @@ export function subscribeToAdminData(
 
   return subscription;
 }
+
+// S6-03 · 알림 수신 여부를 DB에 저장
+export async function saveNotificationPreference(customerId: string, notifyEnabled: boolean) {
+  try {
+    // requests 테이블에 notify_enabled 컬럼 업데이트
+    const { error } = await supabase
+      .from('requests')
+      .update({ notify_enabled: notifyEnabled } as any)
+      .eq('customer_id', customerId)
+      .order('created_at', { ascending: false })
+      .limit(1);
+
+    if (error) {
+      console.error('Failed to save notification preference:', error);
+      return { success: false, error: error.message };
+    }
+
+    return { success: true };
+  } catch (err) {
+    console.error('Error saving notification preference:', err);
+    return { success: false, error: String(err) };
+  }
+}
+
+// S6-03 · DB에서 알림 수신 여부 로드
+export async function loadNotificationPreference(customerId: string) {
+  try {
+    const { data, error } = await supabase
+      .from('requests')
+      .select('notify_enabled')
+      .eq('customer_id', customerId)
+      .order('created_at', { ascending: false })
+      .limit(1) as any;
+
+    if (error) {
+      console.error('Failed to load notification preference:', error);
+      return true; // 기본값: 알림 켜짐
+    }
+
+    if (data && data.length > 0) {
+      return (data[0] as any).notify_enabled ?? true;
+    }
+
+    return true; // 기본값: 알림 켜짐
+  } catch (err) {
+    console.error('Error loading notification preference:', err);
+    return true; // 기본값: 알림 켜짐
+  }
+}
