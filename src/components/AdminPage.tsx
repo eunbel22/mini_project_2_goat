@@ -6,6 +6,8 @@ import { DatabaseManager } from '../utils/database';
 import { TIME_SLOTS } from '../utils/constants';
 import { loadAdminDataFromSupabase, confirmToSupabase, subscribeToAdminData } from '../utils/supabaseData';
 import { decideRequestStatus } from '../utils/decide';
+import { getAllCustomerInfoLocal, type CustomerInfo } from '../utils/customerInfo';
+import { getAllCustomerInfoSupabase } from '../utils/customerInfoSupabase';
 
 interface AdminPageProps {
   db: DatabaseManager;
@@ -26,6 +28,7 @@ export const AdminPage: React.FC<AdminPageProps> = ({ db, mode, userId }) => {
   const [error, setError] = useState<string>('');
   const [success, setSuccess] = useState<string>('');
   const [loading, setLoading] = useState(false);
+  const [customerInfoByRequest, setCustomerInfoByRequest] = useState<Record<string, CustomerInfo>>({});
 
   const om = new OperationManager(db);
 
@@ -73,6 +76,10 @@ export const AdminPage: React.FC<AdminPageProps> = ({ db, mode, userId }) => {
 
         setRequests(adminReqs);
         setLogs([]);
+
+        // 고객 정보 조회 (RLS: 어드민만 전체 행 조회 가능)
+        const infoMap = await getAllCustomerInfoSupabase();
+        setCustomerInfoByRequest(infoMap);
       } catch (err) {
         console.error('Failed to load admin data:', err);
         setError('데이터 로드 실패');
@@ -83,6 +90,12 @@ export const AdminPage: React.FC<AdminPageProps> = ({ db, mode, userId }) => {
       setSlots(state.slots);
       setRequests(om.getAdminRequests());
       setLogs(state.logs || []);
+
+      const infoMap: Record<string, CustomerInfo> = {};
+      getAllCustomerInfoLocal().forEach(info => {
+        infoMap[info.requestId] = info;
+      });
+      setCustomerInfoByRequest(infoMap);
     }
   };
 
@@ -325,6 +338,32 @@ export const AdminPage: React.FC<AdminPageProps> = ({ db, mode, userId }) => {
                   disabled
                 />
               </div>
+
+              {customerInfoByRequest[currentRequest.request.id] && (
+                <div className="form-group">
+                  <label>고객 정보 (P08)</label>
+                  <div style={{ padding: '10px', background: '#f8f9fa', border: '1px solid #dee2e6', borderRadius: '4px', fontSize: '13px' }}>
+                    {(() => {
+                      const info = customerInfoByRequest[currentRequest.request.id];
+                      return (
+                        <>
+                          <div>이름: {info.name}</div>
+                          <div>이메일: {info.email}</div>
+                          {info.company && <div>회사명: {info.company}</div>}
+                          <div>상담 목적: {info.purpose}</div>
+                          {info.note && <div>참고 사항: {info.note}</div>}
+                          {info.goals.length > 0 && (
+                            <div>회의 목표: {info.goals.join(', ')}{info.goalsOther ? ` (기타: ${info.goalsOther})` : ''}</div>
+                          )}
+                          {info.guests.length > 0 && (
+                            <div>게스트: {info.guests.map(g => `${g.name}(${g.email})`).join(', ')}</div>
+                          )}
+                        </>
+                      );
+                    })()}
+                  </div>
+                </div>
+              )}
 
               <div className="form-group">
                 <label>희망 슬롯 (우선순위 순)</label>
