@@ -64,3 +64,24 @@ AGENTS.md, PRD.md와 sql/00_supabase.sql을 읽어라. 고정 슬롯과 판정 �
 ## 6. 본인 기능 얹기
 
 공통 시나리오가 통과하면 Git에 기본 버전을 저장합니다. 고객 카드에서 한 장면을 선택하여 Journey, Service Blueprint, 기능 선택 이유를 적습니다. UI의 희망 선택 상한 3과 1처럼 설정 하나만 바꾸고 동일 입력의 결과를 비교합니다. 42슬롯과 슬롯당 확정 한 명이라는 DB 규칙은 유지합니다.
+
+## 7. (선택) 확정 완료 이메일 발송 설정
+
+Supabase 모드에서 어드민이 신청을 확정하면, 고객이 사전질문 폼(P08)에 입력한 이메일로
+"일정 확정이 완료되었습니다" 메일을 보낼 수 있습니다. 로컬 모드에는 적용되지 않습니다.
+PRD 기본 범위 밖 기능이며, Resend 계정과 Supabase CLI가 있어야 동작합니다.
+
+1. [resend.com](https://resend.com)에서 무료 계정을 만들고 API 키를 발급받습니다.
+2. Supabase CLI로 로그인 후 이 프로젝트에 연결합니다 (`supabase login`, `supabase link --project-ref <project-ref>`).
+3. Edge Function을 배포합니다.
+   ```sh
+   supabase functions deploy send-confirmation-email --no-verify-jwt
+   ```
+4. 임의의 긴 문자열을 하나 만들어 `EDGE_FUNCTION_SECRET`으로 사용합니다 (예: `openssl rand -hex 32`).
+5. Edge Function 시크릿을 설정합니다 (이 값들은 저장소 파일에 넣지 않습니다).
+   ```sh
+   supabase secrets set RESEND_API_KEY=<resend에서 발급받은 키>
+   supabase secrets set EDGE_FUNCTION_SECRET=<4번에서 만든 문자열>
+   ```
+6. `sql/02_confirmation_email.sql` 상단의 두 `ALTER DATABASE` 명령을 프로젝트 값(project-ref, 4번의 문자열)으로 바꿔 SQL Editor에서 먼저 실행한 뒤, 파일 전체를 실행합니다.
+7. 어드민 화면에서 신청을 하나 확정해 이메일이 도착하는지 확인합니다. `onboarding@resend.dev` 발신 주소는 Resend 테스트용이며, 실제 서비스라면 본인 도메인을 인증해 사용합니다.
