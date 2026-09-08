@@ -9,6 +9,9 @@ import { TIME_SLOTS } from '../utils/constants';
 import { loadSlotsFromSupabase, loadCustomerDataFromSupabase, submitToSupabase, resubmitToSupabase, subscribeToCustomerData } from '../utils/supabaseData';
 import { StatusSummaryCard } from './StatusSummaryCard';
 import { PreparationMemoCard } from './PreparationMemoCard';
+import { PreQualificationForm, createEmptyPreQualificationValue, type PreQualificationValue } from './PreQualificationForm';
+import { validateCustomerInfoInput, saveCustomerInfoLocal, getLatestCustomerInfoByCustomerId, type CustomerInfo } from '../utils/customerInfo';
+import { saveCustomerInfoSupabase, getLatestCustomerInfoSupabase } from '../utils/customerInfoSupabase';
 
 interface CustomerPageProps {
   db: DatabaseManager;
@@ -31,6 +34,7 @@ export const CustomerPage: React.FC<CustomerPageProps> = ({ db, mode, userId }) 
   const [statusChanged, setStatusChanged] = useState<boolean>(false);
   const [previousStatus, setPreviousStatus] = useState<string | undefined>();
   const [deadline, setDeadline] = useState<string>(''); // C) 기한 필드
+  const [prequal, setPrequal] = useState<PreQualificationValue>(createEmptyPreQualificationValue());
 
   const om = new OperationManager(db);
 
@@ -38,6 +42,30 @@ export const CustomerPage: React.FC<CustomerPageProps> = ({ db, mode, userId }) 
   useEffect(() => {
     loadData();
   }, [customerId]);
+
+  // 고객 정보 재신청 시 자동 입력 (P08 고객 정보 저장 & 조회)
+  useEffect(() => {
+    if (!customerId) return;
+    const applyInfo = (info: CustomerInfo | undefined) => {
+      if (!info) return;
+      setPrequal({
+        name: info.name,
+        email: info.email,
+        company: info.company || '',
+        purpose: info.purpose,
+        note: info.note || '',
+        guests: info.guests,
+        goals: info.goals,
+        goalsOther: info.goalsOther || '',
+      });
+    };
+
+    if (mode === 'supabase') {
+      getLatestCustomerInfoSupabase(customerId).then(applyInfo);
+    } else {
+      applyInfo(getLatestCustomerInfoByCustomerId(customerId));
+    }
+  }, [customerId, mode]);
 
   // S2-06 · 상태 화면 자동 새로고침 (Supabase Realtime 또는 폴링)
   useEffect(() => {
@@ -229,6 +257,13 @@ export const CustomerPage: React.FC<CustomerPageProps> = ({ db, mode, userId }) 
       return;
     }
 
+    // P08 · 사전질문 폼 형식 검증
+    const prequalError = validateCustomerInfoInput(prequal);
+    if (prequalError) {
+      setError(prequalError);
+      return;
+    }
+
     setLoading(true);
     setError('');
     setSuccess('');
@@ -244,6 +279,7 @@ export const CustomerPage: React.FC<CustomerPageProps> = ({ db, mode, userId }) 
       }
 
       if (result.success) {
+        await persistCustomerInfo(result.requestId!);
         setSuccess('신청이 접수되었습니다! ⏱️ 5분 이내에 우선순위(1순위➔2순위➔3순위)에 따라 확정이 완료됩니다.');
         setSelectedSlots([]);
         setDeadline(''); // C) 기한 초기화
@@ -259,9 +295,38 @@ export const CustomerPage: React.FC<CustomerPageProps> = ({ db, mode, userId }) 
     }
   };
 
+  // 고객 정보 저장 (신청/재신청 공용, 신청과 같은 request_id에 연결)
+  const persistCustomerInfo = async (requestId: string) => {
+    const info: CustomerInfo = {
+      requestId,
+      customerId,
+      name: prequal.name.trim(),
+      email: prequal.email.trim(),
+      company: prequal.company.trim() || undefined,
+      purpose: prequal.purpose.trim(),
+      note: prequal.note.trim() || undefined,
+      guests: prequal.guests,
+      goals: prequal.goals,
+      goalsOther: prequal.goalsOther.trim() || undefined,
+      updatedAt: new Date().toISOString(),
+    };
+
+    if (mode === 'supabase') {
+      await saveCustomerInfoSupabase(info);
+    } else {
+      saveCustomerInfoLocal(info);
+    }
+  };
+
   const handleReselect = async () => {
     if (selectedSlots.length === 0) {
       setError('최소 1개 이상의 슬롯을 선택하세요');
+      return;
+    }
+
+    const prequalError = validateCustomerInfoInput(prequal);
+    if (prequalError) {
+      setError(prequalError);
       return;
     }
 
@@ -286,6 +351,7 @@ export const CustomerPage: React.FC<CustomerPageProps> = ({ db, mode, userId }) 
       }
 
       if (result.success) {
+        await persistCustomerInfo(result.requestId || latest.request.id);
         setSuccess('재선택이 완료되었습니다!');
         setSelectedSlots([]);
         setStage('view');
@@ -384,6 +450,9 @@ export const CustomerPage: React.FC<CustomerPageProps> = ({ db, mode, userId }) 
             />
           </div>
 
+          {/* P08 · 사전질문 폼 */}
+          <PreQualificationForm value={prequal} onChange={setPrequal} disabled={loading} />
+
           <div style={{ marginBottom: '20px' }}>
             <h4>선택한 슬롯 ({selectedSlots.length}/3) - <span style={{ fontSize: '12px', fontWeight: 'normal', color: '#666' }}>▲/▼ 버튼으로 희망 순위 변경 (S1-06)</span></h4>
             <ul className="list">
@@ -456,6 +525,7 @@ export const CustomerPage: React.FC<CustomerPageProps> = ({ db, mode, userId }) 
 
           <SlotTable slots={slots} selectedSlots={selectedSlots} onToggle={() => {}} mode="view" />
 
+          {/* 선택 요약: 날짜/시간 큰 글씨 */}
           <div style={{ marginBottom: '20px' }}>
             <h4>최종 선택 (우선순위 순)</h4>
             <ul className="list">
@@ -463,13 +533,29 @@ export const CustomerPage: React.FC<CustomerPageProps> = ({ db, mode, userId }) 
                 const slot = slots[slotId];
                 return (
                   <li key={slotId}>
-                    <span>
-                      {idx + 1}. {slot?.date} {TIME_SLOTS.find(t => t.label === slot?.timeLabel)?.displayLabel}
+                    <span style={{ fontSize: '18px', fontWeight: 'bold' }}>
+                      {idx + 1}순위 · {slot?.date} {TIME_SLOTS.find(t => t.label === slot?.timeLabel)?.displayLabel}
                     </span>
                   </li>
                 );
               })}
             </ul>
+          </div>
+
+          {/* 입력된 고객 정보 표시 */}
+          <div style={{ padding: '12px', backgroundColor: '#f8f9fa', border: '1px solid #dee2e6', borderRadius: '4px', marginBottom: '20px', fontSize: '13px' }}>
+            <strong style={{ display: 'block', marginBottom: '6px' }}>입력하신 정보</strong>
+            <div>이름: {prequal.name || '-'}</div>
+            <div>이메일: {prequal.email || '-'}</div>
+            {prequal.company && <div>회사명: {prequal.company}</div>}
+            <div>상담 목적: {prequal.purpose || '-'}</div>
+            {prequal.note && <div>참고 사항: {prequal.note}</div>}
+            {prequal.goals.length > 0 && (
+              <div>회의 목표: {prequal.goals.join(', ')}{prequal.goalsOther ? ` (기타: ${prequal.goalsOther})` : ''}</div>
+            )}
+            {prequal.guests.length > 0 && (
+              <div>게스트: {prequal.guests.map(g => `${g.name}(${g.email})`).join(', ')}</div>
+            )}
           </div>
 
           <div style={{ display: 'flex', gap: '10px' }}>
@@ -479,6 +565,13 @@ export const CustomerPage: React.FC<CustomerPageProps> = ({ db, mode, userId }) 
               disabled={loading}
             >
               {loading ? '처리 중...' : '제출'}
+            </button>
+            <button
+              className="btn btn-secondary"
+              onClick={() => setStage('select')}
+              disabled={loading}
+            >
+              수정하기
             </button>
             <button
               className="btn btn-secondary"
@@ -706,6 +799,9 @@ export const CustomerPage: React.FC<CustomerPageProps> = ({ db, mode, userId }) 
               mode="select"
               maxSelect={3}
             />
+
+            {/* P08 · 사전질문 폼 (재선택 시에도 정보 확인/수정 가능) */}
+            <PreQualificationForm value={prequal} onChange={setPrequal} disabled={loading} />
 
             <div style={{ marginBottom: '20px' }}>
               <h4>새로 선택한 슬롯 ({selectedSlots.length}/3)</h4>
