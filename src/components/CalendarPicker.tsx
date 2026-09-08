@@ -9,6 +9,17 @@ interface CalendarPickerProps {
   maxSelect?: number;
 }
 
+// B) 시간대 목록
+const TIMEZONES = [
+  { code: 'Asia/Seoul', label: '한국 (UTC+9)' },
+  { code: 'Asia/Tokyo', label: '일본 (UTC+9)' },
+  { code: 'Asia/Hong_Kong', label: '홍콩 (UTC+8)' },
+  { code: 'America/New_York', label: '뉴욕 (UTC-5/-4)' },
+  { code: 'America/Los_Angeles', label: '로스앤젤레스 (UTC-8/-7)' },
+  { code: 'Europe/London', label: '런던 (UTC+0/+1)' },
+  { code: 'Europe/Paris', label: '파리 (UTC+1/+2)' },
+];
+
 export const CalendarPicker: React.FC<CalendarPickerProps> = ({
   slots,
   selectedSlots,
@@ -16,6 +27,42 @@ export const CalendarPicker: React.FC<CalendarPickerProps> = ({
   maxSelect = 3,
 }) => {
   const [currentDate, setCurrentDate] = useState<Date>(new Date(2026, 8, 9)); // 2026-09-09
+  const [timezone, setTimezone] = useState<string>('Asia/Seoul'); // B) 시간대
+  const [use24Hour, setUse24Hour] = useState<boolean>(true); // B) 12/24시간 형식
+
+  // B) 시간대별 시간 변환 함수
+  const convertTimeToTimezone = (timeLabel: string) => {
+    // 기본은 Asia/Seoul (UTC+9)
+    const baseHours = {
+      am: 9,      // 09:00
+      pm: 13,     // 13:00
+      evening: 18, // 18:00
+    };
+
+    const hour = baseHours[timeLabel as keyof typeof baseHours];
+
+    // 시간대 오프셋 계산 (간단한 구현 - 실제로는 라이브러리 사용 권장)
+    const timezoneOffsets: Record<string, number> = {
+      'Asia/Seoul': 9,
+      'Asia/Tokyo': 9,
+      'Asia/Hong_Kong': 8,
+      'America/New_York': -5, // EST (간단화)
+      'America/Los_Angeles': -8, // PST (간단화)
+      'Europe/London': 0,
+      'Europe/Paris': 1,
+    };
+
+    const offset = timezoneOffsets[timezone] || 9;
+    const convertedHour = (hour + offset - 9 + 24) % 24; // Seoul을 기준으로 변환
+
+    if (use24Hour) {
+      return `${String(convertedHour).padStart(2, '0')}:00`;
+    } else {
+      const hour12 = convertedHour % 12 || 12;
+      const period = convertedHour < 12 ? 'AM' : 'PM';
+      return `${hour12}:00 ${period}`;
+    }
+  };
 
   // 월간 달력 생성
   const getDaysInMonth = (date: Date) => {
@@ -156,6 +203,72 @@ export const CalendarPicker: React.FC<CalendarPickerProps> = ({
             <h4 style={{ marginBottom: '12px', fontSize: '13px' }}>
               {selectedDate} 시간 선택
             </h4>
+
+            {/* B) 시간대 및 형식 선택 */}
+            <div style={{ marginBottom: '12px', padding: '12px', backgroundColor: '#f8f9fa', borderRadius: '4px' }}>
+              <div style={{ marginBottom: '8px' }}>
+                <label style={{ fontSize: '11px', fontWeight: 'bold', display: 'block', marginBottom: '4px', color: '#666' }}>
+                  🌍 시간대 선택
+                </label>
+                <select
+                  value={timezone}
+                  onChange={(e) => setTimezone(e.target.value)}
+                  style={{
+                    width: '100%',
+                    padding: '6px',
+                    borderRadius: '4px',
+                    border: '1px solid #ccc',
+                    fontSize: '12px',
+                    boxSizing: 'border-box',
+                  }}
+                >
+                  {TIMEZONES.map(tz => (
+                    <option key={tz.code} value={tz.code}>
+                      {tz.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label style={{ fontSize: '11px', fontWeight: 'bold', display: 'block', marginBottom: '4px', color: '#666' }}>
+                  ⏰ 시간 형식
+                </label>
+                <div style={{ display: 'flex', gap: '8px' }}>
+                  <button
+                    onClick={() => setUse24Hour(true)}
+                    style={{
+                      flex: 1,
+                      padding: '6px',
+                      borderRadius: '4px',
+                      border: use24Hour ? '2px solid #007bff' : '1px solid #ddd',
+                      background: use24Hour ? '#e7f3ff' : '#ffffff',
+                      fontSize: '11px',
+                      fontWeight: use24Hour ? 'bold' : 'normal',
+                      cursor: 'pointer',
+                    }}
+                  >
+                    24시간 (09:00)
+                  </button>
+                  <button
+                    onClick={() => setUse24Hour(false)}
+                    style={{
+                      flex: 1,
+                      padding: '6px',
+                      borderRadius: '4px',
+                      border: !use24Hour ? '2px solid #007bff' : '1px solid #ddd',
+                      background: !use24Hour ? '#e7f3ff' : '#ffffff',
+                      fontSize: '11px',
+                      fontWeight: !use24Hour ? 'bold' : 'normal',
+                      cursor: 'pointer',
+                    }}
+                  >
+                    12시간 (9:00 AM)
+                  </button>
+                </div>
+              </div>
+            </div>
+
             <div
               style={{
                 display: 'grid',
@@ -174,7 +287,10 @@ export const CalendarPicker: React.FC<CalendarPickerProps> = ({
                 .map(slot => {
                   const isSelected = selectedSlots.includes(slot.id);
                   const isAvailable = slot.status === 'available';
-                  const timeDisplay = TIME_SLOTS.find(t => t.label === slot.timeLabel)?.displayLabel;
+                  const baseTimeDisplay = TIME_SLOTS.find(t => t.label === slot.timeLabel)?.displayLabel;
+                  // B) 시간대별로 변환된 시간 표시
+                  const convertedTime = convertTimeToTimezone(slot.timeLabel);
+                  const timeDisplay = timezone === 'Asia/Seoul' ? baseTimeDisplay : convertedTime;
 
                   return (
                     <button
@@ -199,6 +315,7 @@ export const CalendarPicker: React.FC<CalendarPickerProps> = ({
                         cursor: isAvailable ? 'pointer' : 'default',
                         fontWeight: isSelected ? 'bold' : 'normal',
                       }}
+                      title={`${baseTimeDisplay} (서울 시간) → ${convertedTime} (${TIMEZONES.find(t => t.code === timezone)?.label})`}
                     >
                       {timeDisplay}
                       {isSelected && ' ✓'}
