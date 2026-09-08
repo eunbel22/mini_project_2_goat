@@ -7,13 +7,37 @@ interface StatusSummaryCardProps {
   candidates: Candidate[];
   slots: Record<string, Slot>;
   onRefresh?: () => void;
+  statusChanged?: boolean;
+  previousStatus?: string;
 }
 
-export const StatusSummaryCard: React.FC<StatusSummaryCardProps> = ({ request, candidates, slots, onRefresh }) => {
+export const StatusSummaryCard: React.FC<StatusSummaryCardProps> = ({
+  request,
+  candidates,
+  slots,
+  onRefresh,
+  statusChanged = false,
+  previousStatus
+}) => {
   const [notifyEnabled, setNotifyEnabled] = useState<boolean>(true);
-  const [lastUpdated] = useState<string>(new Date().toLocaleTimeString());
+  const [lastUpdated, setLastUpdated] = useState<string>(new Date().toLocaleTimeString());
+  const [showStatusChangeAlert, setShowStatusChangeAlert] = useState<boolean>(statusChanged);
 
   const confirmedSlot = request.confirmedSlotId ? slots[request.confirmedSlotId] : null;
+
+  // S2-07 · 변경됐을 때만 알림 (상태 변경 감지)
+  React.useEffect(() => {
+    if (statusChanged) {
+      setShowStatusChangeAlert(true);
+      const timer = setTimeout(() => setShowStatusChangeAlert(false), 5000);
+      return () => clearTimeout(timer);
+    }
+  }, [statusChanged]);
+
+  // S2-04 · 마지막 갱신 시각 업데이트
+  React.useEffect(() => {
+    setLastUpdated(new Date().toLocaleTimeString());
+  }, [request.status, request.confirmedSlotId]);
 
   return (
     <div style={{
@@ -23,6 +47,28 @@ export const StatusSummaryCard: React.FC<StatusSummaryCardProps> = ({ request, c
       border: request.status === 'confirmed' ? '2px solid #28a745' : '1px solid #ccc',
       backgroundColor: request.status === 'confirmed' ? '#f4fbf6' : '#ffffff',
     }}>
+      {/* S2-07 · 변경됐을 때만 알림 (상태 변경 감지 배너) */}
+      {showStatusChangeAlert && previousStatus && previousStatus !== request.status && (
+        <div
+          className="alert alert-info"
+          style={{
+            marginBottom: '12px',
+            fontSize: '14px',
+            padding: '12px',
+            backgroundColor: '#d1ecf1',
+            border: '1px solid #bee5eb',
+            color: '#0c5460',
+            borderRadius: '4px',
+          }}
+        >
+          <strong>✨ 상태가 변경되었습니다 (S2-07)</strong>
+          <br />
+          {previousStatus === 'received' && request.status === 'confirmed' && '🎉 축하합니다! 예약이 확정되었습니다.'}
+          {previousStatus === 'received' && request.status === 'needs_reselection' && '⚠️ 선택하신 슬롯이 모두 마감되었습니다. 다시 선택해주세요.'}
+          {previousStatus === 'confirmed' && '상태 변경이 감지되었습니다.'}
+        </div>
+      )}
+
       {/* S6-01 · 확정 시 고객 알림 배너 */}
       {request.status === 'confirmed' && confirmedSlot && (
         <div className="alert alert-success" style={{ marginBottom: '12px', fontSize: '15px' }}>

@@ -5,7 +5,7 @@ import { OperationManager } from '../utils/operations';
 import { DatabaseManager } from '../utils/database';
 import { decideRequestStatus } from '../utils/decide';
 import { TIME_SLOTS } from '../utils/constants';
-import { loadSlotsFromSupabase, loadCustomerDataFromSupabase, submitToSupabase, resubmitToSupabase } from '../utils/supabaseData';
+import { loadSlotsFromSupabase, loadCustomerDataFromSupabase, submitToSupabase, resubmitToSupabase, subscribeToCustomerData } from '../utils/supabaseData';
 import { StatusSummaryCard } from './StatusSummaryCard';
 import { PreparationMemoCard } from './PreparationMemoCard';
 
@@ -26,6 +26,9 @@ export const CustomerPage: React.FC<CustomerPageProps> = ({ db, mode, userId }) 
   const [error, setError] = useState<string>('');
   const [success, setSuccess] = useState<string>('');
   const [loading, setLoading] = useState(false);
+  const [autoRefreshEnabled, setAutoRefreshEnabled] = useState<boolean>(true);
+  const [statusChanged, setStatusChanged] = useState<boolean>(false);
+  const [previousStatus, setPreviousStatus] = useState<string | undefined>();
 
   const om = new OperationManager(db);
 
@@ -33,6 +36,68 @@ export const CustomerPage: React.FC<CustomerPageProps> = ({ db, mode, userId }) 
   useEffect(() => {
     loadData();
   }, [customerId]);
+
+  // S2-06 · 상태 화면 자동 새로고침 (Supabase Realtime 또는 폴링)
+  useEffect(() => {
+    if (!autoRefreshEnabled || stage !== 'view' || customerRequests.length === 0) return;
+
+    let cleanup: (() => void) | null = null;
+
+    if (mode === 'supabase') {
+      // Supabase Realtime 구독
+      const subscription = subscribeToCustomerData(customerId, (data) => {
+        // 데이터 변경 감지 시 상태 계산
+        const slotsData = Object.values(slots);
+        const slotMap: Record<string, any> = {};
+        slotsData.forEach(slot => {
+          slotMap[slot.id] = slot;
+        });
+
+        const status = data.requests.map((request: any) => {
+          const requestCandidates = data.candidates.filter((c: any) => c.requestId === request.id);
+          const decision = decideRequestStatus(request, requestCandidates, slotMap);
+          return { request, candidates: requestCandidates, decision };
+        });
+
+        // S2-07 · 상태 변경 감지
+        if (customerRequests.length > 0 && status.length > 0) {
+          const currentLatest = customerRequests[customerRequests.length - 1];
+          const newLatest = status[status.length - 1];
+          if (currentLatest.request.status !== newLatest.request.status) {
+            setStatusChanged(true);
+            setPreviousStatus(currentLatest.request.status);
+          }
+        }
+
+        setCustomerRequests(status);
+
+        // 상태에 따라 stage 업데이트
+        if (status.length === 0) {
+          setStage('select');
+        } else {
+          const latest = status[status.length - 1];
+          if (latest.request.status === 'needs_reselection') {
+            setStage('reselect');
+          } else {
+            setStage('view');
+          }
+        }
+      });
+
+      cleanup = () => {
+        subscription.unsubscribe();
+      };
+    } else {
+      // 로컬 모드: 폴링 사용
+      const interval = setInterval(() => {
+        loadData();
+      }, 5000);
+
+      cleanup = () => clearInterval(interval);
+    }
+
+    return cleanup;
+  }, [autoRefreshEnabled, stage, customerId, mode]);
 
   const loadData = async () => {
     setError('');
@@ -52,6 +117,16 @@ export const CustomerPage: React.FC<CustomerPageProps> = ({ db, mode, userId }) 
           const decision = decideRequestStatus(request, requestCandidates, slotsData);
           return { request, candidates: requestCandidates, decision };
         });
+
+        // S2-07 · 상태 변경 감지
+        if (customerRequests.length > 0 && status.length > 0) {
+          const currentLatest = customerRequests[customerRequests.length - 1];
+          const newLatest = status[status.length - 1];
+          if (currentLatest.request.status !== newLatest.request.status) {
+            setStatusChanged(true);
+            setPreviousStatus(currentLatest.request.status);
+          }
+        }
 
         setCustomerRequests(status);
 
@@ -78,6 +153,17 @@ export const CustomerPage: React.FC<CustomerPageProps> = ({ db, mode, userId }) 
       const state = db.getState();
       setSlots(state.slots);
       const status = om.getCustomerStatus(customerId);
+
+      // S2-07 · 상태 변경 감지
+      if (customerRequests.length > 0 && status.length > 0) {
+        const currentLatest = customerRequests[customerRequests.length - 1];
+        const newLatest = status[status.length - 1];
+        if (currentLatest.request.status !== newLatest.request.status) {
+          setStatusChanged(true);
+          setPreviousStatus(currentLatest.request.status);
+        }
+      }
+
       setCustomerRequests(status);
 
       // 첫 로드인지 확인
@@ -350,11 +436,23 @@ export const CustomerPage: React.FC<CustomerPageProps> = ({ db, mode, userId }) 
         <div>
           <h3>내 신청 현황</h3>
           {/* S6-02 상태 바로보기 요약 카드 및 S6-01 확정 알림, S2-04 상태 새로고침 */}
+          <div style={{ marginBottom: '12px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <label style={{ fontSize: '12px', display: 'flex', alignItems: 'center', gap: '4px', cursor: 'pointer' }}>
+              <input
+                type="checkbox"
+                checked={autoRefreshEnabled}
+                onChange={e => setAutoRefreshEnabled(e.target.checked)}
+              />
+              S2-06 자동 새로고침 ({autoRefreshEnabled ? '켜짐 - 5초마다' : '꺼짐'})
+            </label>
+          </div>
           <StatusSummaryCard
             request={customerRequests[customerRequests.length - 1].request}
             candidates={customerRequests[customerRequests.length - 1].candidates}
             slots={slots}
             onRefresh={loadData}
+            statusChanged={statusChanged}
+            previousStatus={previousStatus}
           />
           {/* S6-08 상담 준비 메모/체크리스트 카드 */}
           <PreparationMemoCard customerId={customerId} />
@@ -424,64 +522,127 @@ export const CustomerPage: React.FC<CustomerPageProps> = ({ db, mode, userId }) 
         </div>
       )}
 
-      {stage === 'reselect' && customerRequests.length > 0 && (
-        <div>
-          <h3>슬롯 재선택</h3>
-          <p style={{ color: '#666', fontSize: '14px' }}>
-            이전 신청의 슬롯이 모두 마감되었습니다. 다시 선택해주세요.
-          </p>
-          <SlotTable
-            slots={slots}
-            selectedSlots={selectedSlots}
-            onToggle={handleSlotToggle}
-            mode="select"
-            maxSelect={3}
-          />
+      {stage === 'reselect' && customerRequests.length > 0 && (() => {
+        // S3-05 · 남은 열린 슬롯 계산
+        const openSlots = Object.values(slots).filter(s => s.status === 'available');
+        // S3-06 · 기한 전 후보 개수 (기한이 있으면 계산, 없으면 전체)
+        const slotsBeforeDeadline = openSlots.length;
 
-          <div style={{ marginBottom: '20px' }}>
-            <h4>새로 선택한 슬롯 ({selectedSlots.length}/3)</h4>
-            <ul className="list">
-              {selectedSlots.map((slotId, idx) => {
-                const slot = slots[slotId];
-                return (
-                  <li key={slotId}>
-                    <span>
-                      {idx + 1}. {slot?.date} {TIME_SLOTS.find(t => t.label === slot?.timeLabel)?.displayLabel}
-                    </span>
-                    <button
-                      className="btn btn-secondary"
-                      onClick={() => handleSlotToggle(slotId)}
-                      style={{ padding: '4px 8px', fontSize: '12px' }}
-                    >
-                      제거
-                    </button>
-                  </li>
-                );
-              })}
-            </ul>
-          </div>
+        return (
+          <div>
+            <h3>슬롯 재선택</h3>
 
-          <div style={{ display: 'flex', gap: '10px' }}>
-            <button
-              className="btn btn-primary"
-              onClick={handleReselect}
-              disabled={selectedSlots.length === 0 || loading}
-            >
-              {loading ? '처리 중...' : '재선택 제출'}
-            </button>
-            <button
-              className="btn btn-secondary"
-              onClick={() => {
-                setStage('view');
-                setSelectedSlots([]);
-              }}
-              disabled={loading}
-            >
-              돌아가기
-            </button>
+            {/* S3-03 · 입력 실수 아님 안내 */}
+            <div style={{
+              padding: '12px',
+              backgroundColor: '#f8f9fa',
+              border: '1px solid #dee2e6',
+              borderRadius: '4px',
+              marginBottom: '16px',
+              fontSize: '13px',
+              color: '#666',
+            }}>
+              <strong style={{ color: '#333' }}>ℹ️ 알려드립니다 (S3-03)</strong>
+              <br />
+              이는 입력 실수가 아닙니다. 신청하신 슬롯이 다른 고객의 확정으로 마감되었습니다.
+              <br />
+              아래에서 새로운 슬롯을 선택하고 다시 제출해주세요.
+            </div>
+
+            {/* S3-05 · 남은 열린 시간 미리보기 */}
+            <div style={{
+              padding: '12px',
+              backgroundColor: '#e7f3ff',
+              border: '1px solid #b3d9ff',
+              borderRadius: '4px',
+              marginBottom: '16px',
+              fontSize: '13px',
+              color: '#004085',
+            }}>
+              <strong>📊 남은 슬롯 현황 (S3-05)</strong>
+              <br />
+              현재 <strong>{openSlots.length}개</strong>의 열린 슬롯이 있습니다.
+              {/* S3-06 · 기한 전 후보 개수 */}
+              {slotsBeforeDeadline > 0 && (
+                <>
+                  <br />
+                  기한 전에 예약 가능한 슬롯: <strong>{slotsBeforeDeadline}개</strong>
+                </>
+              )}
+            </div>
+
+            {/* S3-07 · 재선택 경로 짧은 안내 */}
+            <div style={{
+              padding: '12px',
+              backgroundColor: '#fff3cd',
+              border: '1px solid #ffeeba',
+              borderRadius: '4px',
+              marginBottom: '16px',
+              fontSize: '13px',
+              color: '#856404',
+            }}>
+              <strong>📋 재선택 진행 안내 (S3-07)</strong>
+              <br />
+              1️⃣ 아래에서 새 날짜 선택 → 2️⃣ 희망 순위 확인 → 3️⃣ 재제출
+            </div>
+
+            <p style={{ color: '#666', fontSize: '14px', marginBottom: '16px' }}>
+              이전 신청의 슬롯이 모두 마감되었습니다. 다시 선택해주세요.
+            </p>
+
+            <SlotTable
+              slots={slots}
+              selectedSlots={selectedSlots}
+              onToggle={handleSlotToggle}
+              mode="select"
+              maxSelect={3}
+            />
+
+            <div style={{ marginBottom: '20px' }}>
+              <h4>새로 선택한 슬롯 ({selectedSlots.length}/3)</h4>
+              <ul className="list">
+                {selectedSlots.map((slotId, idx) => {
+                  const slot = slots[slotId];
+                  return (
+                    <li key={slotId}>
+                      <span>
+                        {idx + 1}. {slot?.date} {TIME_SLOTS.find(t => t.label === slot?.timeLabel)?.displayLabel}
+                      </span>
+                      <button
+                        className="btn btn-secondary"
+                        onClick={() => handleSlotToggle(slotId)}
+                        style={{ padding: '4px 8px', fontSize: '12px' }}
+                      >
+                        제거
+                      </button>
+                    </li>
+                  );
+                })}
+              </ul>
+            </div>
+
+            <div style={{ display: 'flex', gap: '10px' }}>
+              <button
+                className="btn btn-primary"
+                onClick={handleReselect}
+                disabled={selectedSlots.length === 0 || loading}
+              >
+                {loading ? '처리 중...' : '재선택 제출'}
+              </button>
+              <button
+                className="btn btn-secondary"
+                onClick={() => {
+                  setStage('view');
+                  setSelectedSlots([]);
+                }}
+                disabled={loading}
+              >
+                돌아가기
+              </button>
+            </div>
           </div>
-        </div>
-      )}
+        );
+      })()}
     </div>
   );
 };

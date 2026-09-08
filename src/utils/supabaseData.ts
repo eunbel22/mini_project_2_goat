@@ -143,3 +143,75 @@ export async function confirmToSupabase(requestId: string, slotId: string, admin
 
   return { success: true, affectedRequests: result.affectedRequests || [] };
 }
+
+// S2-06/S2-07 · Supabase Realtime 구독 (고객 데이터 변경 감지)
+export function subscribeToCustomerData(
+  customerId: string,
+  onDataChange: (data: { requests: any[]; candidates: any[] }) => void
+) {
+  const subscription = supabase
+    .channel(`customer:${customerId}`)
+    .on(
+      'postgres_changes',
+      {
+        event: '*',
+        schema: 'public',
+        table: 'requests',
+        filter: `customer_id=eq.${customerId}`,
+      },
+      () => {
+        // 요청 변경 감지 시 전체 데이터 리로드
+        loadCustomerDataFromSupabase(customerId).then(onDataChange);
+      }
+    )
+    .on(
+      'postgres_changes',
+      {
+        event: '*',
+        schema: 'public',
+        table: 'slots',
+      },
+      () => {
+        // 슬롯 변경 감지 시 전체 데이터 리로드
+        loadCustomerDataFromSupabase(customerId).then(onDataChange);
+      }
+    )
+    .subscribe();
+
+  return subscription;
+}
+
+// S2-06/S2-07 · Supabase Realtime 구독 (어드민 데이터 변경 감지)
+export function subscribeToAdminData(
+  onDataChange: (data: { slots: any; requests: any[]; candidates: any[] }) => void
+) {
+  const subscription = supabase
+    .channel('admin:all')
+    .on(
+      'postgres_changes',
+      {
+        event: '*',
+        schema: 'public',
+        table: 'requests',
+      },
+      () => {
+        // 요청 변경 감지 시 전체 데이터 리로드
+        loadAdminDataFromSupabase().then(onDataChange);
+      }
+    )
+    .on(
+      'postgres_changes',
+      {
+        event: '*',
+        schema: 'public',
+        table: 'slots',
+      },
+      () => {
+        // 슬롯 변경 감지 시 전체 데이터 리로드
+        loadAdminDataFromSupabase().then(onDataChange);
+      }
+    )
+    .subscribe();
+
+  return subscription;
+}

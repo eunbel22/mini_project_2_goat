@@ -4,7 +4,7 @@ import type { Slot, Request, Candidate, OperationLog } from '../types';
 import { OperationManager } from '../utils/operations';
 import { DatabaseManager } from '../utils/database';
 import { TIME_SLOTS } from '../utils/constants';
-import { loadAdminDataFromSupabase, confirmToSupabase } from '../utils/supabaseData';
+import { loadAdminDataFromSupabase, confirmToSupabase, subscribeToAdminData } from '../utils/supabaseData';
 import { decideRequestStatus } from '../utils/decide';
 
 interface AdminPageProps {
@@ -33,6 +33,27 @@ export const AdminPage: React.FC<AdminPageProps> = ({ db, mode, userId }) => {
   useEffect(() => {
     loadData();
   }, []);
+
+  // S2-06/S2-07 · Supabase Realtime 구독 (어드민 대시보드 실시간 갱신)
+  useEffect(() => {
+    if (mode !== 'supabase') return;
+
+    const subscription = subscribeToAdminData((data) => {
+      // 요청 상태 계산
+      const adminReqs = data.requests.map((request: any) => {
+        const requestCandidates = data.candidates.filter((c: any) => c.requestId === request.id);
+        const decision = decideRequestStatus(request, requestCandidates, data.slots);
+        return { request, candidates: requestCandidates, decision };
+      });
+
+      setSlots(data.slots);
+      setRequests(adminReqs);
+    });
+
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, [mode]);
 
   const loadData = async () => {
     setError('');
