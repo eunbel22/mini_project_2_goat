@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { SlotTable } from './SlotTable';
+import { CalendarPicker } from './CalendarPicker';
 import type { Slot, Request, Candidate } from '../types';
 import { OperationManager } from '../utils/operations';
 import { DatabaseManager } from '../utils/database';
@@ -29,6 +30,7 @@ export const CustomerPage: React.FC<CustomerPageProps> = ({ db, mode, userId }) 
   const [autoRefreshEnabled, setAutoRefreshEnabled] = useState<boolean>(true);
   const [statusChanged, setStatusChanged] = useState<boolean>(false);
   const [previousStatus, setPreviousStatus] = useState<string | undefined>();
+  const [deadline, setDeadline] = useState<string>(''); // C) 기한 필드
 
   const om = new OperationManager(db);
 
@@ -213,6 +215,20 @@ export const CustomerPage: React.FC<CustomerPageProps> = ({ db, mode, userId }) 
       return;
     }
 
+    // C) 기한 필드 검증
+    if (!deadline) {
+      setError('인수인계 기한을 입력하세요');
+      return;
+    }
+
+    // 기한이 선택한 슬롯보다 늦지 않은지 확인
+    const selectedSlotDates = selectedSlots.map(slotId => slots[slotId]?.date).filter(Boolean);
+    const earliestSlot = selectedSlotDates.length > 0 ? selectedSlotDates.sort()[0] : null;
+    if (earliestSlot && deadline < earliestSlot) {
+      setError('기한이 선택한 슬롯보다 빨라야 합니다');
+      return;
+    }
+
     setLoading(true);
     setError('');
     setSuccess('');
@@ -221,6 +237,7 @@ export const CustomerPage: React.FC<CustomerPageProps> = ({ db, mode, userId }) 
       let result;
       if (mode === 'supabase') {
         result = await submitToSupabase(customerId, selectedSlots);
+        // TODO: deadline을 requests 테이블에 저장
       } else {
         const operationId = `submit-${customerId}-${Date.now()}`;
         result = await om.submitRequest(customerId, selectedSlots, operationId);
@@ -229,6 +246,7 @@ export const CustomerPage: React.FC<CustomerPageProps> = ({ db, mode, userId }) 
       if (result.success) {
         setSuccess('신청이 접수되었습니다! ⏱️ 5분 이내에 우선순위(1순위➔2순위➔3순위)에 따라 확정이 완료됩니다.');
         setSelectedSlots([]);
+        setDeadline(''); // C) 기한 초기화
         setStage('view');
         setTimeout(() => loadData(), 500);
       } else {
@@ -284,6 +302,7 @@ export const CustomerPage: React.FC<CustomerPageProps> = ({ db, mode, userId }) 
 
   const handleCancel = () => {
     setSelectedSlots([]);
+    setDeadline(''); // C) 기한 초기화
     setStage('view');
     setError('');
   };
@@ -327,13 +346,43 @@ export const CustomerPage: React.FC<CustomerPageProps> = ({ db, mode, userId }) 
           <p style={{ color: '#666', fontSize: '14px' }}>
             원하는 슬롯을 선택하고 제출하세요. 선택 순서가 희망 우선순위입니다.
           </p>
-          <SlotTable
-            slots={slots}
-            selectedSlots={selectedSlots}
-            onToggle={handleSlotToggle}
-            mode="select"
-            maxSelect={3}
-          />
+
+          {/* C) 기한 필드 */}
+          <div className="form-group" style={{ marginBottom: '20px', maxWidth: '400px' }}>
+            <label style={{ fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '6px' }}>
+              📅 인수인계 기한 (필수)
+            </label>
+            <input
+              type="date"
+              value={deadline}
+              onChange={(e) => setDeadline(e.target.value)}
+              min="2026-09-09"
+              max="2026-10-31"
+              required
+              style={{
+                width: '100%',
+                padding: '8px',
+                borderRadius: '4px',
+                border: '1px solid #ccc',
+                fontSize: '14px',
+              }}
+              title="점주가 예정된 퇴사 날짜를 입력하세요"
+            />
+            <small style={{ color: '#666', marginTop: '4px', display: 'block' }}>
+              점주가 떠나는 날짜를 입력하면, 그 전에 상담받을 슬롯을 추천해드립니다.
+            </small>
+          </div>
+
+          {/* A) 달력 UI */}
+          <div style={{ marginBottom: '20px' }}>
+            <h4 style={{ fontSize: '13px', marginBottom: '12px' }}>📆 날짜 & 시간 선택</h4>
+            <CalendarPicker
+              slots={slots}
+              selectedSlots={selectedSlots}
+              onToggle={handleSlotToggle}
+              maxSelect={3}
+            />
+          </div>
 
           <div style={{ marginBottom: '20px' }}>
             <h4>선택한 슬롯 ({selectedSlots.length}/3) - <span style={{ fontSize: '12px', fontWeight: 'normal', color: '#666' }}>▲/▼ 버튼으로 희망 순위 변경 (S1-06)</span></h4>
@@ -395,6 +444,16 @@ export const CustomerPage: React.FC<CustomerPageProps> = ({ db, mode, userId }) 
           <div style={{ padding: '10px 14px', backgroundColor: '#e8f4f8', border: '1px solid #b8daff', color: '#004085', borderRadius: '4px', fontSize: '13px', marginBottom: '16px' }}>
             💡 <strong>신청 및 확정 안내 (S1-08 / S5-08 / S2-08):</strong> 제출 시 '접수'되며, ⏱️ <strong>5분 이내</strong>에 희망 순위(1순위➔2순위➔3순위)에 따라 자동/수동 확정이 완결됩니다. (접수는 슬롯을 점유하지 않습니다.)
           </div>
+
+          {/* C) 기한 정보 표시 */}
+          {deadline && (
+            <div style={{ padding: '12px', backgroundColor: '#fff3cd', border: '1px solid #ffeeba', borderRadius: '4px', marginBottom: '16px', fontSize: '13px', color: '#856404' }}>
+              <strong>📅 인수인계 기한</strong>
+              <br />
+              {deadline} (D-{Math.ceil((new Date(deadline).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24))})
+            </div>
+          )}
+
           <SlotTable slots={slots} selectedSlots={selectedSlots} onToggle={() => {}} mode="view" />
 
           <div style={{ marginBottom: '20px' }}>

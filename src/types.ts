@@ -17,6 +17,7 @@ export interface Request {
   status: 'received' | 'needs_reselection' | 'confirmed';
   confirmedSlotId?: string; // 어드민이 선택한 슬롯
   confirmedAt?: string; // ISO 8601
+  deadline?: string; // ISO 8601 - 기한 (인수인계 종료일 등)
 }
 
 // 고객이 선택한 희망 슬롯 (여러 개)
