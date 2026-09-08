@@ -69,19 +69,18 @@ AGENTS.md, PRD.md와 sql/00_supabase.sql을 읽어라. 고정 슬롯과 판정 �
 
 Supabase 모드에서 어드민이 신청을 확정하면, 고객이 사전질문 폼(P08)에 입력한 이메일로
 "일정 확정이 완료되었습니다" 메일을 보낼 수 있습니다. 로컬 모드에는 적용되지 않습니다.
-PRD 기본 범위 밖 기능이며, Resend 계정과 Supabase CLI가 있어야 동작합니다.
+PRD 기본 범위 밖 기능이며, Resend 계정이 있어야 동작합니다. 아래 단계는 모두 Supabase
+대시보드(웹)에서 할 수 있고 CLI가 없어도 됩니다.
 
 1. [resend.com](https://resend.com)에서 무료 계정을 만들고 API 키를 발급받습니다.
-2. Supabase CLI로 로그인 후 이 프로젝트에 연결합니다 (`supabase login`, `supabase link --project-ref <project-ref>`).
-3. Edge Function을 배포합니다.
-   ```sh
-   supabase functions deploy send-confirmation-email --no-verify-jwt
-   ```
-4. 임의의 긴 문자열을 하나 만들어 `EDGE_FUNCTION_SECRET`으로 사용합니다 (예: `openssl rand -hex 32`).
-5. Edge Function 시크릿을 설정합니다 (이 값들은 저장소 파일에 넣지 않습니다).
-   ```sh
-   supabase secrets set RESEND_API_KEY=<resend에서 발급받은 키>
-   supabase secrets set EDGE_FUNCTION_SECRET=<4번에서 만든 문자열>
-   ```
-6. `sql/02_confirmation_email.sql` 상단의 두 `ALTER DATABASE` 명령을 프로젝트 값(project-ref, 4번의 문자열)으로 바꿔 SQL Editor에서 먼저 실행한 뒤, 파일 전체를 실행합니다.
-7. 어드민 화면에서 신청을 하나 확정해 이메일이 도착하는지 확인합니다. `onboarding@resend.dev` 발신 주소는 Resend 테스트용이며, 실제 서비스라면 본인 도메인을 인증해 사용합니다.
+2. 대시보드 **Edge Functions → Manage secrets**에서 두 시크릿을 등록합니다 (이 값들은 저장소 파일에 넣지 않습니다).
+   - `RESEND_API_KEY`: 1번에서 발급받은 키
+   - `EDGE_FUNCTION_SECRET`: 임의의 긴 문자열 (예: `openssl rand -hex 32`로 생성한 값)
+3. 대시보드 **Edge Functions → Deploy a new function**에서 이름을 정확히 `send-confirmation-email`로 만들고, `supabase/functions/send-confirmation-email/index.ts` 내용을 붙여넣어 배포합니다. **Verify JWT 옵션은 꺼야 합니다** (이 함수는 2번의 `EDGE_FUNCTION_SECRET`으로 자체 인증합니다).
+4. **Project Settings → General**에서 **Project ID**(project-ref)를 확인합니다.
+5. SQL Editor에서 `sql/02_confirmation_email.sql` 전체를 실행하되, `INSERT INTO notification_config` 부분의 두 값을 본인 값으로 바꿉니다.
+   - `confirmation_email_function_url`: `https://<project-ref>.supabase.co/functions/v1/send-confirmation-email`
+   - `edge_function_secret`: 2번에서 만든 `EDGE_FUNCTION_SECRET`과 동일한 값
+
+   (호스팅 Supabase는 `ALTER DATABASE ... SET`을 프로젝트 소유자에게도 허용하지 않아서, URL과 시크릿은 RLS로 잠근 `notification_config` 테이블에 저장하고 트리거가 조회합니다.)
+6. 어드민 화면에서 신청을 하나 확정해 이메일이 도착하는지 확인합니다. `onboarding@resend.dev` 발신 주소는 Resend 테스트용이며, 실제 서비스라면 본인 도메인을 인증해 사용합니다.
