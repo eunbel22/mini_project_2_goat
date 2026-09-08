@@ -29,6 +29,7 @@ export const CalendarPicker: React.FC<CalendarPickerProps> = ({
   const [currentDate, setCurrentDate] = useState<Date>(new Date(2026, 8, 9)); // 2026-09-09
   const [timezone, setTimezone] = useState<string>('Asia/Seoul'); // B) 시간대
   const [use24Hour, setUse24Hour] = useState<boolean>(true); // B) 12/24시간 형식
+  const [viewingDate, setViewingDate] = useState<string | null>(null); // 현재 보고 있는 날짜
 
   // B) 시간대별 시간 변환 함수
   const convertTimeToTimezone = (timeLabel: string) => {
@@ -87,8 +88,10 @@ export const CalendarPicker: React.FC<CalendarPickerProps> = ({
 
   // 선택된 날짜의 슬롯들
   const selectedDate = selectedSlots.length > 0 ? slots[selectedSlots[0]]?.date : null;
-  const selectedDateSlots = selectedDate
-    ? Object.values(slots).filter(s => s.date === selectedDate)
+  // 보고 있는 날짜 (먼저 viewingDate, 없으면 selectedDate)
+  const currentViewingDate = viewingDate || selectedDate;
+  const selectedDateSlots = currentViewingDate
+    ? Object.values(slots).filter(s => s.date === currentViewingDate)
     : [];
 
   const daysInMonth = getDaysInMonth(currentDate);
@@ -168,11 +171,8 @@ export const CalendarPicker: React.FC<CalendarPickerProps> = ({
                   onClick={() => {
                     const dateSlots = getDateSlots(day);
                     if (dateSlots.length > 0 && availability !== 'no-slots') {
-                      // 이 날짜의 모든 슬롯을 선택 (기존 선택 유지)
-                      const firstSlot = dateSlots.find(s => s.status === 'available');
-                      if (firstSlot) {
-                        onToggle(firstSlot.id);
-                      }
+                      // 날짜만 선택 (시간은 사용자가 오른쪽에서 선택)
+                      setViewingDate(dateStr);
                     }
                   }}
                   disabled={availability === 'no-slots' || availability === 'closed'}
@@ -180,11 +180,11 @@ export const CalendarPicker: React.FC<CalendarPickerProps> = ({
                     padding: '8px',
                     fontSize: '12px',
                     borderRadius: '4px',
-                    border: isSelected ? '2px solid #007bff' : '1px solid #ddd',
-                    background: isSelected ? '#e7f3ff' : availability === 'closed' ? '#f5f5f5' : '#ffffff',
+                    border: isSelected ? '2px solid #007bff' : viewingDate === dateStr ? '2px solid #ffc107' : '1px solid #ddd',
+                    background: isSelected ? '#e7f3ff' : viewingDate === dateStr ? '#fffacd' : availability === 'closed' ? '#f5f5f5' : '#ffffff',
                     color: availability === 'closed' ? '#999' : '#333',
                     cursor: availability !== 'no-slots' && availability !== 'closed' ? 'pointer' : 'default',
-                    fontWeight: isSelected ? 'bold' : 'normal',
+                    fontWeight: isSelected || viewingDate === dateStr ? 'bold' : 'normal',
                   }}
                   title={`${dateStr} (${availability === 'available' ? '가능' : '마감'})`}
                 >
@@ -201,7 +201,7 @@ export const CalendarPicker: React.FC<CalendarPickerProps> = ({
         {selectedDateSlots.length > 0 ? (
           <div>
             <h4 style={{ marginBottom: '12px', fontSize: '13px' }}>
-              {selectedDate} 시간 선택
+              {currentViewingDate} 시간 선택
             </h4>
 
             {/* B) 시간대 및 형식 선택 */}
